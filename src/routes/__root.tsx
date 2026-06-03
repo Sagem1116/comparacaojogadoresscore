@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Comparacao de Score de Jogadores" },
+      { name: "description", content: "Comparacao de Score de Jogadores" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Comparacao de Score de Jogadores" },
+      { property: "og:description", content: "Comparacao de Score de Jogadores" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Comparacao de Score de Jogadores" },
+      { name: "twitter:description", content: "Comparacao de Score de Jogadores" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29026e2c-3619-464e-8beb-60937ed98589/id-preview-3694a287--02b642e4-f86c-44c6-bbcf-842ddaba6c5d.lovable.app-1780510746143.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/29026e2c-3619-464e-8beb-60937ed98589/id-preview-3694a287--02b642e4-f86c-44c6-bbcf-842ddaba6c5d.lovable.app-1780510746143.png" },
     ],
     links: [
       {
