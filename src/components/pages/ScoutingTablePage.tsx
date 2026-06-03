@@ -745,20 +745,20 @@ export default function ScoutingTablePage() {
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Role analysis snapshot</p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-900 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Top score</p>
-                      <p className="mt-2 text-lg font-semibold text-white">{analysisSummary.highestFinalScore.toFixed(1)}</p>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 p-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Role analysis snapshot</p>
+                  <div className="mt-2.5 grid gap-2 grid-cols-3">
+                    <div className="rounded-xl bg-slate-900 px-2.5 py-2">
+                      <p className="text-[9px] uppercase tracking-[0.2em] text-slate-500">Top score</p>
+                      <p className="mt-1 text-sm font-semibold text-white">{analysisSummary.highestFinalScore.toFixed(1)}</p>
                     </div>
-                    <div className="rounded-2xl bg-slate-900 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Best player</p>
-                      <p className="mt-2 text-lg font-semibold text-white">{analysisSummary.highestPlayer?.playerName || '—'}</p>
+                    <div className="rounded-xl bg-slate-900 px-2.5 py-2">
+                      <p className="text-[9px] uppercase tracking-[0.2em] text-slate-500">Best player</p>
+                      <p className="mt-1 text-sm font-semibold text-white truncate">{analysisSummary.highestPlayer?.playerName || '—'}</p>
                     </div>
-                    <div className="rounded-2xl bg-slate-900 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Summary</p>
-                      <p className="mt-2 text-lg font-semibold text-white">{analysisSummary.topTierCount} top-3</p>
+                    <div className="rounded-xl bg-slate-900 px-2.5 py-2">
+                      <p className="text-[9px] uppercase tracking-[0.2em] text-slate-500">Summary</p>
+                      <p className="mt-1 text-sm font-semibold text-white">{analysisSummary.topTierCount} top-3</p>
                     </div>
                   </div>
                 </div>
