@@ -545,14 +545,14 @@ function MetricRow({
   onRemove,
 }: MetricRowProps) {
   return (
-    <div className="bg-slate-800 p-4 rounded-lg space-y-3">
-      <div className="flex gap-3">
-        <div className="flex-1">
-          <label className="text-xs text-slate-400 mb-1 block">Metric</label>
+    <div className="rounded-xl border border-slate-800/80 bg-slate-900/70 p-2.5 space-y-2 transition hover:border-violet-500/40">
+      <div className="flex gap-2 items-end">
+        <div className="flex-1 min-w-0">
+          <label className="text-[10px] uppercase tracking-[0.18em] text-slate-500 mb-1 block">Metric</label>
           <select
             value={metric.columnName}
             onChange={(e) => onChange({ columnName: e.target.value, name: e.target.value })}
-            className="input-field text-sm"
+            className="input-field text-xs py-1.5 px-2 rounded-lg"
           >
             <option value="">Select metric...</option>
             {availableMetrics.map((col) => (
@@ -562,60 +562,59 @@ function MetricRow({
             ))}
           </select>
         </div>
-        <div className="w-20">
-          <label className="text-xs text-slate-400 mb-1 block">Weight</label>
+        <div className="w-16">
+          <label className="text-[10px] uppercase tracking-[0.18em] text-slate-500 mb-1 block">Weight</label>
           <input
             type="number"
             value={metric.weight}
             onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
-            className="input-field text-sm"
+            className="input-field text-xs py-1.5 px-2 rounded-lg"
             min="0"
             max="100"
           />
         </div>
-        <button
-          onClick={onRemove}
-          className="mt-6 p-2 text-red-400 hover:bg-red-950 rounded transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">Normalization</label>
+        <div className="w-24">
+          <label className="text-[10px] uppercase tracking-[0.18em] text-slate-500 mb-1 block">Norm.</label>
           <select
             value={metric.normalizationType}
             onChange={(e) =>
               onChange({ normalizationType: e.target.value as MetricConfig['normalizationType'] })
             }
-            className="input-field text-sm"
+            className="input-field text-xs py-1.5 px-2 rounded-lg"
           >
             <option value="minMax">Min-Max</option>
             <option value="zScore">Z-Score</option>
-            <option value="percentile">Percentile</option>
+            <option value="percentile">Pctl</option>
           </select>
         </div>
-        <div className="flex items-end gap-2">
-          <label className="flex items-center gap-2 text-sm cursor-pointer flex-1 mb-2">
-            <input
-              type="checkbox"
-              checked={metric.inverse}
-              onChange={(e) => onChange({ inverse: e.target.checked })}
-              className="rounded"
-            />
-            <span className="text-xs">Inverse</span>
-          </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer flex-1 mb-2">
-            <input
-              type="checkbox"
-              checked={metric.enabled}
-              onChange={(e) => onChange({ enabled: e.target.checked })}
-              className="rounded"
-            />
-            <span className="text-xs">Enabled</span>
-          </label>
-        </div>
+        <button
+          onClick={onRemove}
+          className="p-1.5 text-red-400 hover:bg-red-950/60 rounded-lg transition-colors"
+          aria-label="Remove metric"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-4 pl-0.5">
+        <label className="flex items-center gap-1.5 text-[11px] cursor-pointer text-slate-300">
+          <input
+            type="checkbox"
+            checked={metric.inverse}
+            onChange={(e) => onChange({ inverse: e.target.checked })}
+            className="rounded h-3 w-3"
+          />
+          <span>Inverse</span>
+        </label>
+        <label className="flex items-center gap-1.5 text-[11px] cursor-pointer text-slate-300">
+          <input
+            type="checkbox"
+            checked={metric.enabled}
+            onChange={(e) => onChange({ enabled: e.target.checked })}
+            className="rounded h-3 w-3"
+          />
+          <span>Enabled</span>
+        </label>
       </div>
     </div>
   )
