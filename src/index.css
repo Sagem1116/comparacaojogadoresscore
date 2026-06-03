@@ -11,10 +11,24 @@
     @apply antialiased text-slate-100;
     background-color: #020617;
     background-image:
-      radial-gradient(circle at top, rgba(168, 85, 247, 0.2), transparent 30%),
-      radial-gradient(circle at 20% 10%, rgba(129, 140, 248, 0.14), transparent 22%),
-      radial-gradient(circle at 80% 15%, rgba(236, 72, 153, 0.1), transparent 18%),
+      radial-gradient(circle at top, rgba(168, 85, 247, 0.22), transparent 32%),
+      radial-gradient(circle at 20% 10%, rgba(129, 140, 248, 0.16), transparent 24%),
+      radial-gradient(circle at 80% 15%, rgba(236, 72, 153, 0.12), transparent 20%),
       linear-gradient(180deg, #020617 0%, #090b15 40%, #111827 100%);
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
   }
 
   ::selection {
