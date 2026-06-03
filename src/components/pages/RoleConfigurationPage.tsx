@@ -409,7 +409,8 @@ export default function RoleConfigurationPage() {
                 <p className="text-sm">Click the button above to begin building your scoring profile.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2">
+
                 {metrics.map((metric, idx) => (
                   <MetricRow
                     key={idx}
