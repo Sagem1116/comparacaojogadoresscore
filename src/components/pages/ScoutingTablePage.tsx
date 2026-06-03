@@ -34,9 +34,6 @@ export default function ScoutingTablePage() {
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(currentRole || configuredRole || detectedRoles[0] || null)
   const [copiedPlayerName, setCopiedPlayerName] = useState<string | null>(null)
-  const [selectedSimilarPlayerId, setSelectedSimilarPlayerId] = useState<string>(players[0]?.id || '')
-  const [selectedMetricColumnsForSimilarity, setSelectedMetricColumnsForSimilarity] = useState<string[]>([])
-  const [similarPlayers, setSimilarPlayers] = useState<{ player: Player; distance: number }[]>([])
 
   const playersById = useMemo(() => new Map(players.map((player) => [player.id, player])), [players])
 
@@ -196,83 +193,6 @@ export default function ScoutingTablePage() {
   // Helper function to get player by ID
   const getPlayer = (playerId: string): Player | undefined => {
     return playersById.get(playerId)
-  }
-
-  const metricSimilarityColumns = useMemo(() => availableStatColumns, [availableStatColumns])
-
-  useEffect(() => {
-    if (!selectedSimilarPlayerId && players.length > 0) {
-      setSelectedSimilarPlayerId(players[0].id)
-    }
-  }, [players, selectedSimilarPlayerId])
-
-  const getPlayerMetricValue = (player: Player, column: string): number | null => {
-    return parseNumericValue(player.statistics[column])
-  }
-
-  const calculateMetricBounds = (columns: string[]) => {
-    const bounds: Record<string, { min: number; max: number }> = {}
-    columns.forEach((column) => {
-      let min = Infinity
-      let max = -Infinity
-
-      players.forEach((player) => {
-        const value = getPlayerMetricValue(player, column)
-        if (value !== null) {
-          min = Math.min(min, value)
-          max = Math.max(max, value)
-        }
-      })
-
-      bounds[column] = {
-        min: min === Infinity ? 0 : min,
-        max: max === -Infinity ? 0 : max,
-      }
-    })
-    return bounds
-  }
-
-  const getNormalizedMetricValue = (
-    player: Player,
-    column: string,
-    bounds: Record<string, { min: number; max: number }>
-  ) => {
-    const value = getPlayerMetricValue(player, column)
-    if (value === null) return 0
-    const { min, max } = bounds[column]
-    if (max === min) return 0
-    return (value - min) / (max - min)
-  }
-
-  const findSimilarPlayers = (player: Player, columns: string[]) => {
-    if (columns.length === 0) return []
-    const bounds = calculateMetricBounds(columns)
-    const referenceValues = columns.map((column) => getNormalizedMetricValue(player, column, bounds))
-
-    return players
-      .filter((candidate) => candidate.id !== player.id)
-      .map((candidate) => {
-        const distance = Math.sqrt(
-          columns.reduce((sum, column, index) => {
-            const candidateValue = getNormalizedMetricValue(candidate, column, bounds)
-            const diff = candidateValue - referenceValues[index]
-            return sum + diff * diff
-          }, 0)
-        )
-        return { player: candidate, distance }
-      })
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 20)
-  }
-
-  const handleSearchSimilarPlayers = () => {
-    const selectedPlayer = getPlayer(selectedSimilarPlayerId)
-    if (!selectedPlayer || selectedMetricColumnsForSimilarity.length === 0) {
-      setSimilarPlayers([])
-      return
-    }
-
-    setSimilarPlayers(findSimilarPlayers(selectedPlayer, selectedMetricColumnsForSimilarity))
   }
 
   // Helper function to get value for a specific column
@@ -823,94 +743,6 @@ export default function ScoutingTablePage() {
                       className="scout-input pl-10"
                     />
                   </div>
-                </div>
-
-                <div className="scout-card">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.22em] text-slate-400">Similaridade de métricas</p>
-                      <h2 className="text-2xl font-semibold text-white">Jogadores parecidos por métricas</h2>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleSearchSimilarPlayers}
-                      disabled={!selectedSimilarPlayerId || selectedMetricColumnsForSimilarity.length === 0}
-                      className="btn-primary inline-flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <Search className="w-4 h-4" />
-                      Pesquisar
-                    </button>
-                  </div>
-
-                  <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                    <div className="space-y-2 rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                      <label className="text-sm uppercase tracking-[0.22em] text-slate-400">Jogador base</label>
-                      <select
-                        value={selectedSimilarPlayerId}
-                        onChange={(e) => setSelectedSimilarPlayerId(e.target.value)}
-                        className="scout-input w-full"
-                      >
-                        {players.map((player) => (
-                          <option key={player.id} value={player.id}>
-                            {player.playerName} — {player.club} ({player.position})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-2 rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <label className="text-sm uppercase tracking-[0.22em] text-slate-400">Métricas</label>
-                        <span className="text-xs text-slate-500">{selectedMetricColumnsForSimilarity.length} selecionadas</span>
-                      </div>
-                      <div className="grid max-h-56 gap-2 overflow-y-auto">
-                        {metricSimilarityColumns.map((column) => (
-                          <label key={column} className="inline-flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-200">
-                            <input
-                              type="checkbox"
-                              checked={selectedMetricColumnsForSimilarity.includes(column)}
-                              onChange={(e) => {
-                                setSelectedMetricColumnsForSimilarity((prev) =>
-                                  e.target.checked ? [...prev, column] : prev.filter((item) => item !== column)
-                                )
-                              }}
-                              className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-cyan-400"
-                            />
-                            <span>{column}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-slate-500">
-                    Selecione ao menos uma métrica e clique em pesquisar para ver jogadores com valores similares.
-                  </p>
-
-                  {similarPlayers.length > 0 ? (
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold text-white">Resultados similares</h3>
-                      <div className="mt-4 grid gap-3">
-                        {similarPlayers.map(({ player, distance }, index) => (
-                          <div key={player.id} className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div>
-                                <p className="font-semibold text-white">{index + 1}. {player.playerName}</p>
-                                <p className="text-sm text-slate-400">{player.club} • {player.position}</p>
-                              </div>
-                              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.24em] text-slate-300">
-                                Distância {distance.toFixed(3)}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/95 p-5 text-slate-500">
-                      Pesquise para ver jogadores semelhantes com base nas métricas selecionadas.
-                    </div>
-                  )}
                 </div>
 
                 <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">

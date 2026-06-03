@@ -7,6 +7,7 @@ import ScoutingTablePage from './components/pages/ScoutingTablePage'
 import PlayerProfilePage from './components/pages/PlayerProfilePage'
 import DashboardPage from './components/pages/DashboardPage'
 import MetricInfoPage from './components/pages/MetricInfoPage'
+import SimilarPlayersPage from './components/pages/SimilarPlayersPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
 /**
@@ -31,6 +32,7 @@ function App() {
               <Route path="/configuration" element={<RoleConfigurationPage />} />
               <Route path="/configuration/:roleId" element={<RoleConfigurationPage />} />
               <Route path="/scouting" element={<ScoutingTablePage />} />
+              <Route path="/similares" element={<SimilarPlayersPage />} />
               <Route path="/player/:playerId" element={<PlayerProfilePage />} />
             </Routes>
           </main>

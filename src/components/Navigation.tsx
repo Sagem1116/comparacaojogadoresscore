@@ -10,7 +10,7 @@ const navItems = [
   { to: '/scouting', label: 'Best XI' },
   { to: '/scouting', label: 'Moneyball' },
   { to: '/configuration', label: 'Fantasy Draft' },
-  { to: '/scouting', label: 'Jogadores Similiares Metricas' },
+  { to: '/similares', label: 'Jogadores Similiares Metricas' },
   { to: '/import', label: 'Tutorials' },
 ]
 
