@@ -697,14 +697,14 @@ export default function ScoutingTablePage() {
                 </button>
               </div>
 
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Current role</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{selectedRole?.name || 'None selected'}</p>
+              <div className="mt-3 grid gap-2.5 grid-cols-2">
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-slate-500">Current role</p>
+                  <p className="mt-1 text-base font-semibold text-white truncate">{selectedRole?.name || 'None selected'}</p>
                 </div>
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Data imported</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{players.length.toLocaleString()}</p>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-slate-500">Data imported</p>
+                  <p className="mt-1 text-base font-semibold text-white">{players.length.toLocaleString()}</p>
                 </div>
               </div>
             </div>
