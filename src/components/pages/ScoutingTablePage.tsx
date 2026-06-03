@@ -650,35 +650,35 @@ export default function ScoutingTablePage() {
             </button>
 
             <div className="grid gap-4 xl:grid-cols-[1.7fr_0.95fr] mb-6">
-          <div className="scout-panel overflow-hidden relative p-6">
+          <div className="scout-panel overflow-hidden relative p-5">
             <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_55%)] opacity-70" />
             <div className="relative space-y-4">
               <span className="scout-badge">FMDataLab scouting</span>
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                   Scouting analysis with premium table controls
                 </h1>
-                <p className="mt-3 max-w-3xl text-slate-400 text-base">
+                <p className="mt-2 max-w-3xl text-slate-400 text-sm">
                   Browse player rankings, role scores, salary filters and custom column visibility in a modern analytics workspace inspired by FMDataLab.
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Players analyzed</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{filteredAnalyses.length.toLocaleString()}</p>
+              <div className="grid gap-2.5 grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-slate-500">Players analyzed</p>
+                  <p className="mt-1 text-lg font-semibold text-white">{filteredAnalyses.length.toLocaleString()}</p>
                 </div>
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Selected role</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{selectedRole?.name || 'Not selected'}</p>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-slate-500">Selected role</p>
+                  <p className="mt-1 text-lg font-semibold text-white truncate">{selectedRole?.name || 'Not selected'}</p>
                 </div>
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Avg. final score</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{analysisSummary.averageFinalScore.toFixed(1)}</p>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-slate-500">Avg. final score</p>
+                  <p className="mt-1 text-lg font-semibold text-white">{analysisSummary.averageFinalScore.toFixed(1)}</p>
                 </div>
-                <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Top 3 performers</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{analysisSummary.topTierCount}</p>
+                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 px-3 py-2.5">
+                  <p className="text-[9px] uppercase tracking-[0.22em] text-slate-500">Top 3 performers</p>
+                  <p className="mt-1 text-lg font-semibold text-white">{analysisSummary.topTierCount}</p>
                 </div>
               </div>
             </div>
