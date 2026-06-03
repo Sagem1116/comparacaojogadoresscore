@@ -1,0 +1,67 @@
+﻿
+> fm-scouting-engine@1.0.0 build
+> tsc && vite build
+
+src/App.tsx(1,1): error TS6192: All imports in import declaration are unused.
+src/App.tsx(18,9): error TS6133: 'players' is declared but its value is never read.
+src/App.tsx(19,9): error TS6133: 'detectedRoles' is declared but its value is never read.
+src/components/Navigation.tsx(2,51): error TS6133: 'BookOpen' is declared but its value is never read.
+src/components/pages/ImportPage.tsx(13,9): error TS6133: 'setStatisticsDataset' is declared but its value is never read.
+src/components/pages/ImportPage.tsx(14,9): error TS6133: 'setRoleScoresDataset' is declared but its value is never read.
+src/components/pages/ImportPage.tsx(18,9): error TS6133: 'setImportError' is declared but its value is never read.
+src/components/pages/PlayerProfilePage.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/pages/PlayerProfilePage.tsx(4,23): error TS6133: 'ArrowUp' is declared but its value is never read.
+src/components/pages/PlayerProfilePage.tsx(4,32): error TS6133: 'ArrowDown' is declared but its value is never read.
+src/components/pages/PlayerProfilePage.tsx(15,9): error TS6133: 'analyses' is declared but its value is never read.
+src/components/pages/RoleConfigurationPage.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/pages/RoleConfigurationPage.tsx(343,3): error TS6133: 'index' is declared but its value is never read.
+src/components/pages/ScoutingTablePage.tsx(171,35): error TS2345: Argument of type 'Role | null' is not assignable to parameter of type 'SetStateAction<Role>'.
+  Type 'null' is not assignable to type 'SetStateAction<Role>'.
+src/components/pages/ScoutingTablePage.tsx(290,53): error TS6133: 'idx' is declared but its value is never read.
+src/hooks/useAnalysis.ts(1,32): error TS6133: 'useState' is declared but its value is never read.
+src/hooks/useAnalysis.ts(3,39): error TS6133: 'createAnalysisView' is declared but its value is never read.
+src/hooks/useAnalysis.ts(154,39): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/services/analysisService.ts(8,3): error TS6133: 'CalculationResult' is declared but its value is never read.
+src/services/analysisService.ts(16,27): error TS6133: 'extractFormulaVariables' is declared but its value is never read.
+src/services/analysisService.ts(31,3): error TS6133: 'allPlayers' is declared but its value is never read.
+src/services/analysisService.ts(134,68): error TS2345: Argument of type '(string | number | null)[]' is not assignable to parameter of type '(number | null | undefined)[]'.
+  Type 'string | number | null' is not assignable to type 'number | null | undefined'.
+    Type 'string' is not assignable to type 'number'.
+src/services/analysisService.ts(207,18): error TS2532: Object is possibly 'undefined'.
+src/services/analysisService.ts(209,18): error TS2532: Object is possibly 'undefined'.
+src/services/analysisService.ts(212,13): error TS2532: Object is possibly 'undefined'.
+src/services/analysisService.ts(213,13): error TS2532: Object is possibly 'undefined'.
+src/services/importService.ts(3,3): error TS6133: 'detectRoleColumns' is declared but its value is never read.
+src/services/importService.ts(6,3): error TS6133: 'createDataset' is declared but its value is never read.
+src/services/importService.ts(9,3): error TS6133: 'matchPlayers' is declared but its value is never read.
+src/services/importService.ts(10,3): error TS6133: 'mergePlayerData' is declared but its value is never read.
+src/services/importService.ts(14,24): error TS6133: 'Dataset' is declared but its value is never read.
+src/services/importService.ts(15,30): error TS7016: Could not find a declaration file for module 'uuid'. 'C:/Users/Nuno/Desktop/scores/node_modules/uuid/dist/esm-browser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+src/stores/dataStore.ts(5,3): error TS6133: 'ImportedData' is declared but its value is never read.
+src/stores/dataStore.ts(11,3): error TS6133: 'ScoutingConfiguration' is declared but its value is never read.
+src/stores/dataStore.ts(13,3): error TS6133: 'FilterCriteria' is declared but its value is never read.
+src/stores/dataStore.ts(14,3): error TS6133: 'SortConfig' is declared but its value is never read.
+src/stores/dataStore.ts(161,40): error TS6133: 'metricProfiles' is declared but its value is never read.
+src/types/index.ts(9,3): error TS2374: Duplicate index signature for type 'string'.
+src/types/index.ts(15,3): error TS2411: Property 'marketValue' of type 'number | undefined' is not assignable to 'string' index type 'string | number | null'.
+src/types/index.ts(16,3): error TS2374: Duplicate index signature for type 'string'.
+src/types/index.ts(20,3): error TS2374: Duplicate index signature for type 'string'.
+src/types/index.ts(24,3): error TS2374: Duplicate index signature for type 'string'.
+src/utils/csvParser.ts(2,10): error TS6133: 'PlayerStatistics' is declared but its value is never read.
+src/utils/csvParser.ts(2,28): error TS6133: 'PlayerRoleScores' is declared but its value is never read.
+src/utils/csvParser.ts(2,61): error TS6137: Cannot import type declaration files. Consider importing 'index' instead of '@types/index'.
+src/utils/formula.ts(1,10): error TS6133: 'FormulaVariable' is declared but its value is never read.
+src/utils/formula.ts(1,27): error TS6133: 'FormulaVariableType' is declared but its value is never read.
+src/utils/formula.ts(8,7): error TS6133: 'FORMULA_OPERATORS' is declared but its value is never read.
+src/utils/formula.ts(9,7): error TS6133: 'VALID_VARIABLE_NAMES' is declared but its value is never read.
+src/utils/formula.ts(10,7): error TS6133: 'FORMULA_PATTERN' is declared but its value is never read.
+src/utils/metrics.ts(1,43): error TS6133: 'CalculationResult' is declared but its value is never read.
+src/utils/metrics.ts(91,5): error TS2741: Property 'count' is missing in type '{ p10: number; p25: number; p50: number; p75: number; p90: number; p95: number; p99: number; min: number; max: number; mean: number; stdDev: number; }' but required in type 'PercentileStats'.
+src/utils/metrics.ts(130,3): error TS2741: Property 'count' is missing in type '{ p10: number; p25: number; p50: number; p75: number; p90: number; p95: number; p99: number; min: number; max: number; mean: number; stdDev: number; }' but required in type 'PercentileStats'.
+src/utils/playerMatching.ts(1,18): error TS6133: 'PlayerStatistics' is declared but its value is never read.
+src/utils/playerMatching.ts(1,36): error TS6133: 'PlayerRoleScores' is declared but its value is never read.
+src/utils/playerMatching.ts(37,9): error TS6133: 'fuzzyMatches' is declared but its value is never read.
+src/utils/playerMatching.ts(110,9): error TS6133: 'roleColumns' is declared but its value is never read.
+src/utils/playerMatching.ts(126,7): error TS2739: Type 'Record<string, any>' is missing the following properties from type 'PlayerStatistics': playerName, club, age, position, minutes
+src/utils/playerMatching.ts(127,7): error TS2739: Type 'Record<string, any>' is missing the following properties from type 'PlayerRoleScores': playerName, club, age

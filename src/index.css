@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply antialiased text-slate-100;
+    background-color: #020617;
+    background-image:
+      radial-gradient(circle at top, rgba(168, 85, 247, 0.2), transparent 30%),
+      radial-gradient(circle at 20% 10%, rgba(129, 140, 248, 0.14), transparent 22%),
+      radial-gradient(circle at 80% 15%, rgba(236, 72, 153, 0.1), transparent 18%),
+      linear-gradient(180deg, #020617 0%, #090b15 40%, #111827 100%);
+  }
+
+  ::selection {
+    background-color: rgba(139, 92, 246, 0.9);
+    color: white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_20px_80px_-40px_rgba(168,85,247,0.75)] transition-all duration-200 hover:shadow-[0_25px_90px_-35px_rgba(168,85,247,0.9)];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-950/90 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:border-slate-500;
+  }
+
+  .panel {
+    @apply rounded-[32px] border border-slate-800/70 bg-slate-950/95 backdrop-blur-xl shadow-[0_32px_120px_-80px_rgba(15,23,42,0.9)];
+  }
+
+  .card {
+    @apply rounded-3xl border border-slate-800/80 bg-slate-950/95;
+  }
+
+  .input-field {
+    @apply w-full rounded-2xl border border-slate-700/80 bg-slate-900/95 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20;
+  }
+
+  .table-scrollbar::-webkit-scrollbar {
+    @apply h-2 w-2;
+  }
+
+  .table-scrollbar::-webkit-scrollbar-track {
+    @apply rounded-full bg-slate-900;
+  }
+
+  .table-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-700 hover:bg-slate-600;
+  }
+
+  .scout-page {
+    --background: hsl(224 71.4% 4.1%);
+    --foreground: hsl(210 20% 98%);
+    --background-alt: hsl(222.2 84% 10%);
+    --primary: hsl(263.4 70% 50.4%);
+    --secondary: hsl(215 27.9% 16.9%);
+    --muted-foreground: hsl(217.9 10.6% 64.9%);
+    background-color: var(--background);
+    background-image:
+      radial-gradient(900px 500px at 12% -10%, hsla(263,70%,22%,0.55), transparent 60%),
+      radial-gradient(700px 500px at 100% 10%, hsla(280,80%,30%,0.35), transparent 60%);
+    color: var(--foreground);
+  }
+
+  .scout-panel {
+    border-radius: 2rem;
+    border: 1px solid hsla(263,40%,35%,0.35);
+    background: linear-gradient(180deg, hsla(222,50%,9%,0.85), hsla(224,60%,6%,0.85));
+    backdrop-filter: blur(16px);
+    box-shadow: 0 32px 120px -80px rgba(15,23,42,0.9);
+  }
+
+  .scout-card {
+    border-radius: 1.5rem;
+    border: 1px solid hsla(263,40%,35%,0.35);
+    background: hsla(224,60%,6%,0.55);
+    backdrop-filter: blur(12px);
+    padding: 1.5rem;
+  }
+
+  .scout-input {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid hsla(263,30%,25%,0.7);
+    background: hsl(224 60% 4% / 0.94);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .scout-input:focus {
+    border-color: hsl(263 80% 60%);
+    box-shadow: 0 0 0 2px hsla(263,80%,60%,0.2);
+  }
+
+  .scout-filter-input {
+    width: auto;
+    min-width: 4.5rem;
+    max-width: 7.5rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .scout-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid hsla(263,30%,25%,0.75);
+    background: hsla(224,60%,6%,0.7);
+    padding: 0.9rem 1.05rem;
+    font-size: 0.875rem;
+    color: hsl(210 20% 95%);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .scout-toggle:hover {
+    border-color: hsl(263 80% 60%);
+    background: hsla(224,60%,6%,0.85);
+  }
+
+  .scout-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid hsla(263,40%,35%,0.4);
+    background: hsla(224,60%,6%,0.85);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: hsl(210 20% 92%);
+  }
+
+  .scout-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.75rem;
+  }
+
+  .scout-table th {
+    @apply border-b border-slate-800/70 px-4 py-4 text-left text-[11px] uppercase tracking-[0.22em] text-slate-400;
+  }
+
+  .scout-table td {
+    @apply border-b border-slate-800/70 px-4 py-3 text-slate-200;
+  }
+
+  .scout-table thead th {
+    @apply bg-slate-950/95 text-slate-200;
+  }
+
+  .scout-table tbody tr:hover {
+    @apply bg-slate-900/90;
+  }
+
+  .scout-badge {
+    @apply inline-flex items-center gap-2 rounded-full bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-300 uppercase tracking-[0.24em];
+  }
+
+  .scout-pill {
+    @apply inline-flex items-center gap-2 rounded-full bg-slate-950/90 px-3 py-1 text-xs text-slate-300 border border-slate-700;
+  }
+
+  .scout-pill.active {
+    @apply bg-cyan-500/15 border-cyan-400 text-cyan-200;
+  }
+
+  .scout-table .score-bar {
+    @apply h-3 rounded-full bg-slate-900;
+  }
+
+  .scout-table .score-fill,
+  .score-fill {
+    @apply h-full rounded-full shadow-lg;
+  }
+
+  .score-fill.green {
+    @apply bg-emerald-400/80;
+  }
+
+  .score-fill.cyan {
+    @apply bg-cyan-400/80;
+  }
+
+  .score-fill.amber {
+    @apply bg-amber-400/80;
+  }
+
+  .score-fill.rose {
+    @apply bg-rose-400/80;
+  }
+
+  .score-pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/95 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-100;
+  }
+
+  .score-pill.green {
+    @apply border-emerald-400/30 bg-emerald-400/20 text-emerald-300;
+  }
+
+  .score-pill.cyan {
+    @apply border-cyan-400/30 bg-cyan-400/20 text-cyan-300;
+  }
+
+  .score-pill.amber {
+    @apply border-amber-400/30 bg-amber-400/20 text-amber-300;
+  }
+
+  .score-pill.rose {
+    @apply border-rose-400/30 bg-rose-400/20 text-rose-300;
+  }
+
+  .scout-table th {
+    @apply border-b border-slate-800/70 px-4 py-4 text-left text-[11px] uppercase tracking-[0.22em] text-slate-300;
+  }
+
+  .scout-table td {
+    @apply border-b border-slate-800/70 px-4 py-3 text-slate-200;
+  }
+}
