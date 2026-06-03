@@ -49,6 +49,27 @@ export default function SimilarPlayersPage() {
     return parseNumericValue(player.statistics[column])
   }
 
+  const getPlayerStatisticValue = (player: Player, column: string) => {
+    const rawValue = player.statistics[column]
+    if (rawValue !== undefined && rawValue !== null) {
+      return rawValue
+    }
+
+    const lowerKey = column.toLowerCase().trim()
+    const matchingKey = Object.keys(player.statistics).find(
+      (key) => key.toLowerCase().trim() === lowerKey
+    )
+    return matchingKey ? player.statistics[matchingKey] : undefined
+  }
+
+  const formatDisplayValue = (value: any) => {
+    if (value === null || value === undefined || value === '') return '-'
+    if (typeof value === 'number') return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(1)
+    return String(value)
+  }
+
+  const defaultResultColumns = ['Name', 'Division', 'Wage', 'Transfer Value']
+
   const calculateMetricBounds = (columns: string[]) => {
     const bounds: Record<string, { min: number; max: number }> = {}
 
@@ -245,23 +266,43 @@ export default function SimilarPlayersPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-5">
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-5 overflow-x-auto">
               <h2 className="text-xl font-semibold text-white">Resultados similares</h2>
               {similarPlayers.length > 0 ? (
-                <div className="mt-4 grid gap-3">
-                  {similarPlayers.map(({ player, distance }, index) => (
-                    <div key={player.id} className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="font-semibold text-white">{index + 1}. {player.playerName}</p>
-                          <p className="text-sm text-slate-400">{player.club} • {player.position}</p>
-                        </div>
-                        <span className="rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.24em] text-slate-300">
-                          Distância {distance.toFixed(3)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="mt-4 min-w-full">
+                  <table className="min-w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400">
+                        {defaultResultColumns.map((column) => (
+                          <th key={column} className="px-3 py-3 font-medium uppercase tracking-[0.18em] text-[10px]">
+                            {column}
+                          </th>
+                        ))}
+                        {selectedMetricColumns.map((column) => (
+                          <th key={column} className="px-3 py-3 font-medium uppercase tracking-[0.18em] text-[10px]">
+                            {column}
+                          </th>
+                        ))}
+                        <th className="px-3 py-3 font-medium uppercase tracking-[0.18em] text-[10px]">Distance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800 text-slate-200">
+                      {similarPlayers.map(({ player, distance }, index) => (
+                        <tr key={player.id} className={index % 2 === 0 ? 'bg-slate-950/80' : 'bg-slate-900/80'}>
+                          <td className="px-3 py-3">{player.playerName}</td>
+                          <td className="px-3 py-3">{formatDisplayValue(getPlayerStatisticValue(player, 'Division'))}</td>
+                          <td className="px-3 py-3">{formatDisplayValue(getPlayerStatisticValue(player, 'Wage'))}</td>
+                          <td className="px-3 py-3">{formatDisplayValue(getPlayerStatisticValue(player, 'Transfer Value'))}</td>
+                          {selectedMetricColumns.map((column) => (
+                            <td key={column} className="px-3 py-3">
+                              {formatDisplayValue(getPlayerMetricValue(player, column))}
+                            </td>
+                          ))}
+                          <td className="px-3 py-3">{distance.toFixed(3)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
                 <div className="mt-4 rounded-3xl border border-slate-800 bg-slate-950/95 p-5 text-slate-500">
