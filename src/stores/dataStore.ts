@@ -13,6 +13,7 @@ import {
   FilterCriteria,
   SortConfig,
 } from '../types/index'
+import type { NunoRoleConfig } from '../services/nunoAnalysisService'
 
 /**
  * Global State Management using Zustand
@@ -27,6 +28,12 @@ interface DataStore {
   detectedRoles: Role[]
   importProgress: number
   importError: string | null
+
+  // Custom (Nuno) attributes — optional 3rd CSV/HTML
+  customAttributes: Record<string, Record<string, number>>
+  customAttributeColumns: string[]
+  nunoRoleWeights: Record<string, Record<string, number>> // legacy
+  nunoConfigs: Record<string, NunoRoleConfig>
 
   // Configuration State
   roles: Map<string, Role>
@@ -50,6 +57,11 @@ interface DataStore {
   setDetectedRoles: (roles: Role[]) => void
   setImportProgress: (progress: number) => void
   setImportError: (error: string | null) => void
+  setCustomAttributes: (attrs: Record<string, Record<string, number>>, columns: string[]) => void
+  clearCustomAttributes: () => void
+  setNunoRoleWeights: (roleId: string, weights: Record<string, number>) => void
+  setNunoConfig: (roleId: string, config: NunoRoleConfig) => void
+  clearNunoConfig: (roleId: string) => void
   clearImport: () => void
 
   // Actions - Configuration
@@ -95,6 +107,44 @@ const initialTableState: TableState = {
   globalFilter: '',
 }
 
+const STORAGE_KEY_CUSTOM_ATTRS = 'nuno-custom-attributes-v1'
+const STORAGE_KEY_NUNO_WEIGHTS = 'nuno-role-weights-v1'
+const STORAGE_KEY_NUNO_CONFIGS = 'nuno-configs-v2'
+
+function loadJSON<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback
+  try {
+    const raw = window.localStorage.getItem(key)
+    if (!raw) return fallback
+    return JSON.parse(raw) as T
+  } catch {
+    return fallback
+  }
+}
+
+function saveJSON(key: string, value: unknown) {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // ignore quota errors
+  }
+}
+
+const initialCustomAttrs = loadJSON<{
+  customAttributes: Record<string, Record<string, number>>
+  customAttributeColumns: string[]
+}>(STORAGE_KEY_CUSTOM_ATTRS, { customAttributes: {}, customAttributeColumns: [] })
+
+const initialNunoWeights = loadJSON<Record<string, Record<string, number>>>(
+  STORAGE_KEY_NUNO_WEIGHTS,
+  {}
+)
+const initialNunoConfigs = loadJSON<Record<string, NunoRoleConfig>>(
+  STORAGE_KEY_NUNO_CONFIGS,
+  {}
+)
+
 export const useDataStore = create<DataStore>((set, get) => ({
   // Initial State
   statisticsDataset: null,
@@ -103,6 +153,11 @@ export const useDataStore = create<DataStore>((set, get) => ({
   detectedRoles: [],
   importProgress: 0,
   importError: null,
+
+  customAttributes: initialCustomAttrs.customAttributes,
+  customAttributeColumns: initialCustomAttrs.customAttributeColumns,
+  nunoRoleWeights: initialNunoWeights,
+  nunoConfigs: initialNunoConfigs,
 
   roles: new Map(),
   metricProfiles: new Map(),
@@ -135,6 +190,35 @@ export const useDataStore = create<DataStore>((set, get) => ({
   setImportProgress: (progress) => set({ importProgress: progress }),
 
   setImportError: (error) => set({ importError: error }),
+
+  setCustomAttributes: (attrs, columns) => {
+    saveJSON(STORAGE_KEY_CUSTOM_ATTRS, { customAttributes: attrs, customAttributeColumns: columns })
+    set({ customAttributes: attrs, customAttributeColumns: columns })
+  },
+
+  clearCustomAttributes: () => {
+    saveJSON(STORAGE_KEY_CUSTOM_ATTRS, { customAttributes: {}, customAttributeColumns: [] })
+    set({ customAttributes: {}, customAttributeColumns: [] })
+  },
+
+  setNunoRoleWeights: (roleId, weights) => {
+    const next = { ...get().nunoRoleWeights, [roleId]: weights }
+    saveJSON(STORAGE_KEY_NUNO_WEIGHTS, next)
+    set({ nunoRoleWeights: next })
+  },
+
+  setNunoConfig: (roleId, config) => {
+    const next = { ...get().nunoConfigs, [roleId]: config }
+    saveJSON(STORAGE_KEY_NUNO_CONFIGS, next)
+    set({ nunoConfigs: next })
+  },
+
+  clearNunoConfig: (roleId) => {
+    const next = { ...get().nunoConfigs }
+    delete next[roleId]
+    saveJSON(STORAGE_KEY_NUNO_CONFIGS, next)
+    set({ nunoConfigs: next })
+  },
 
   clearImport: () =>
     set({

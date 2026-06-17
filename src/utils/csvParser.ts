@@ -163,6 +163,7 @@ export function detectStatisticColumns(headers: string[]): string[] {
 export function extractPlayerInfoColumns(
   headers: string[]
 ): {
+  uid?: string
   playerName: string
   club: string
   age: string
@@ -177,20 +178,29 @@ export function extractPlayerInfoColumns(
   const minutesHeaders = ['minutes', 'minutes played', 'mins', 'mp', 'minutes_played', 'minutesplayed', 'played minutes', 'play time']
   const marketValueHeaders = ['market value', 'market_value', 'value', 'transfer value', 'transfer_value']
 
+  const norm = (s: string) => s.toLowerCase().trim()
+
   const findHeader = (patterns: string[], headers: string[]): string => {
     const found = headers.find((h) =>
-      patterns.some((p) => h.toLowerCase().includes(p.toLowerCase()))
+      patterns.some((p) => norm(h).includes(norm(p)))
     )
     return found || headers[0] // Fallback to first header
   }
 
   const findOptionalHeader = (patterns: string[], headers: string[]): string | undefined => {
     return headers.find((h) =>
-      patterns.some((p) => h.toLowerCase().includes(p.toLowerCase()))
+      patterns.some((p) => norm(h).includes(norm(p)))
     )
   }
 
+  // UID: prefer exact 'uid' / 'player uid' / 'unique id' — avoid false positives like 'fluid'
+  const uidCandidate = headers.find((h) => {
+    const n = norm(h).replace(/[_\s-]+/g, '')
+    return n === 'uid' || n === 'idu' || n === 'playeruid' || n === 'uniqueid' || n === 'fmuid' || n === 'playerid'
+  })
+
   return {
+    uid: uidCandidate,
     playerName: findHeader(playerNameHeaders, headers),
     club: findHeader(clubHeaders, headers),
     age: findHeader(ageHeaders, headers),

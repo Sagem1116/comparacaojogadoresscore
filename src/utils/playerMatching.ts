@@ -53,11 +53,17 @@ export function matchPlayers(
 
   // Create indices for faster lookup
   const exactMatches = new Map<string, number>()
-  const fuzzyMatches = new Map<string, { index: number; score: number }[]>()
+  const uidMatches = new Map<string, number>()
 
-  // First pass: exact matching
+  const haveUid = Boolean(statsColumns.uid && roleColumns.uid)
+
+  // First pass: build UID index + name/club/age key index from role scores
   for (let i = 0; i < roleScores.length; i++) {
     const rolePlayer = roleScores[i]
+    if (haveUid) {
+      const uidVal = String(rolePlayer[roleColumns.uid!] ?? '').trim()
+      if (uidVal) uidMatches.set(uidVal, i)
+    }
     const key = createPlayerKey(
       rolePlayer[roleColumns.playerName],
       rolePlayer[roleColumns.club],
@@ -66,9 +72,18 @@ export function matchPlayers(
     exactMatches.set(key, i)
   }
 
-  // Second pass: find matches in statistics
+  // Second pass: find matches in statistics — UID first, then exact, then fuzzy
   for (let i = 0; i < statistics.length; i++) {
     const statsPlayer = statistics[i]
+
+    if (haveUid) {
+      const uidVal = String(statsPlayer[statsColumns.uid!] ?? '').trim()
+      if (uidVal && uidMatches.has(uidVal)) {
+        matches.set(i, uidMatches.get(uidVal)!)
+        continue
+      }
+    }
+
     const key = createPlayerKey(
       statsPlayer[statsColumns.playerName],
       statsPlayer[statsColumns.club],
@@ -134,8 +149,13 @@ export function mergePlayerData(
     const statsData = statistics[statsIndex]
     const roleData = roleScores[roleIndex]
 
+    const uidVal = statsColumns.uid
+      ? String(statsData[statsColumns.uid] ?? '').trim() || undefined
+      : undefined
+
     const player: Player = {
       id: `player-${playerId++}`,
+      uid: uidVal,
       playerName: String(statsData[statsColumns.playerName] ?? '').trim(),
       club: String(statsData[statsColumns.club] ?? '').trim(),
       age: parseInt(String(statsData[statsColumns.age] ?? '0'), 10) || 0,

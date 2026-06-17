@@ -22,6 +22,7 @@ export interface PlayerRoleScores extends Record<string, string | number | null 
 
 export interface Player {
   id: string // UUID or composite key
+  uid?: string // FM UID from CSV (preferred matching key across files)
   playerName: string
   club: string
   age: number

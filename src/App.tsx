@@ -7,7 +7,10 @@ import ScoutingTablePage from './components/pages/ScoutingTablePage'
 import PlayerProfilePage from './components/pages/PlayerProfilePage'
 import DashboardPage from './components/pages/DashboardPage'
 import MetricInfoPage from './components/pages/MetricInfoPage'
+import MetricInfoNunoPage from './components/pages/MetricInfoNunoPage'
 import SimilarPlayersPage from './components/pages/SimilarPlayersPage'
+import NunoScoresPage from './components/pages/NunoScoresPage'
+import ScoutingNunoPage from './components/pages/ScoutingNunoPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
 /**
@@ -29,10 +32,13 @@ function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/import" element={<ImportPage />} />
               <Route path="/metricas-info" element={<MetricInfoPage />} />
+              <Route path="/metricas-info-nuno" element={<MetricInfoNunoPage />} />
               <Route path="/configuration" element={<RoleConfigurationPage />} />
               <Route path="/configuration/:roleId" element={<RoleConfigurationPage />} />
               <Route path="/scouting" element={<ScoutingTablePage />} />
               <Route path="/similares" element={<SimilarPlayersPage />} />
+              <Route path="/nuno-scores" element={<NunoScoresPage />} />
+              <Route path="/scouting-nuno-scores" element={<ScoutingNunoPage />} />
               <Route path="/player/:playerId" element={<PlayerProfilePage />} />
             </Routes>
           </main>

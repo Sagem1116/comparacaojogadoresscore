@@ -137,11 +137,11 @@
 
   .scout-input {
     width: 100%;
-    border-radius: 1rem;
+    border-radius: 0.65rem;
     border: 1px solid hsla(263,30%,25%,0.7);
     background: hsl(224 60% 4% / 0.94);
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.8125rem;
     color: var(--foreground);
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -154,10 +154,11 @@
 
   .scout-filter-input {
     width: auto;
-    min-width: 4.5rem;
-    max-width: 7.5rem;
-    padding: 0.45rem 0.75rem;
-    font-size: 0.75rem;
+    min-width: 3rem;
+    max-width: 5rem;
+    padding: 0.25rem 0.45rem;
+    font-size: 0.7rem;
+    border-radius: 0.45rem;
   }
 
   .scout-toggle {
@@ -197,15 +198,15 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
 
   .scout-table th {
-    @apply border-b border-slate-800/70 px-3 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-300 whitespace-nowrap;
+    @apply border-b border-slate-800/70 px-2 py-2 text-left text-[9px] uppercase tracking-[0.16em] font-semibold text-slate-300 whitespace-nowrap;
   }
 
   .scout-table td {
-    @apply border-b border-slate-900/80 px-3 py-2.5 text-slate-200 whitespace-nowrap;
+    @apply border-b border-slate-900/80 px-2 py-1.5 text-slate-200 whitespace-nowrap text-[11px];
   }
 
   .scout-table thead th {
@@ -283,10 +284,10 @@
   }
 
   .scout-table th {
-    @apply border-b border-slate-800/70 px-3 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-300 whitespace-nowrap;
+    @apply border-b border-slate-800/70 px-2 py-2 text-left text-[9px] uppercase tracking-[0.16em] font-semibold text-slate-300 whitespace-nowrap;
   }
 
   .scout-table td {
-    @apply border-b border-slate-900/80 px-3 py-2.5 text-slate-200 whitespace-nowrap;
+    @apply border-b border-slate-900/80 px-2 py-1.5 text-slate-200 whitespace-nowrap text-[11px];
   }
 }

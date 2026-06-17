@@ -4,7 +4,8 @@ import { useDataStore } from '../../stores/dataStore'
 import { ChevronLeft, Copy, Check, Download, Settings, Search } from 'lucide-react'
 import { PlayerAnalysis, Role, Player } from '../../types/index'
 import { useFilteredAnalyses, usePagination } from '../../hooks/useAnalysis'
-import { calculateAllPlayersAnalysis, exportAnalysisToCSV } from '../../services/analysisService'
+import { exportAnalysisToCSV } from '../../services/analysisService'
+import { calculateNunoAnalyses } from '../../services/nunoAnalysisService'
 import AIScoutAssistant from '../AIScoutAssistant'
 
 function parseNumericValue(value: any): number | null {
@@ -15,26 +16,21 @@ function parseNumericValue(value: any): number | null {
 }
 
 /**
- * Scouting Table Page Component
- * Displays player analysis results in a professional table format
+ * Scouting Nuno Page — same layout as ScoutingTablePage but uses Nuno per-role config
+ * (attributes + metrics + custom formula). Scores shown: Attribute Score, Metric Score, Final Score.
  */
-export default function ScoutingTablePage() {
+export default function ScoutingNunoPage() {
   const navigate = useNavigate()
 
   const players = useDataStore((state) => state.players)
   const currentRole = useDataStore((state) => state.currentRole)
-  const roleConfigurations = useDataStore((state) => state.roleConfigurations)
+  const nunoConfigs = useDataStore((state) => state.nunoConfigs)
   const detectedRoles = useDataStore((state) => state.detectedRoles)
   const customAttributes = useDataStore((state) => state.customAttributes)
-  const customAttributeColumns = useDataStore((state) => state.customAttributeColumns)
-  const nunoRoleWeights = useDataStore((state) => state.nunoRoleWeights)
 
   const configuredRole = useMemo(() => {
-    const configured = detectedRoles.find((role) =>
-      Array.from(roleConfigurations.values()).some((config) => config.roleId === role.id)
-    )
-    return configured || null
-  }, [detectedRoles, roleConfigurations])
+    return detectedRoles.find((role) => !!nunoConfigs[role.id]) || null
+  }, [detectedRoles, nunoConfigs])
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(currentRole || configuredRole || detectedRoles[0] || null)
   const [copiedPlayerName, setCopiedPlayerName] = useState<string | null>(null)
@@ -94,7 +90,7 @@ export default function ScoutingTablePage() {
     [availableStatColumns]
   )
 
-  const STORAGE_KEY_SCOUTING_STATE = 'scouting-table-state'
+  const STORAGE_KEY_SCOUTING_STATE = 'scouting-nuno-state'
 
   const [searchQuery, setSearchQuery] = useState('')
   const [columnSearch, setColumnSearch] = useState('')
@@ -209,70 +205,20 @@ export default function ScoutingTablePage() {
     }
   }, [currentRole, configuredRole, detectedRoles, selectedRole])
 
-  // Get configuration for selected role
+  // Get Nuno configuration for selected role
   const configuration = useMemo(() => {
     if (!selectedRole) return null
-    return Array.from(roleConfigurations.values()).find((c) => c.roleId === selectedRole.id) || null
-  }, [selectedRole, roleConfigurations])
+    return nunoConfigs[selectedRole.id] || null
+  }, [selectedRole, nunoConfigs])
 
   const analyses = useMemo(() => {
     if (!selectedRole || !configuration || players.length === 0) return []
-    return calculateAllPlayersAnalysis(
-      players,
-      selectedRole,
-      configuration.metricProfile,
-      configuration
-    )
-  }, [players, selectedRole, configuration])
+    return calculateNunoAnalyses(players, selectedRole, configuration, customAttributes)
+  }, [players, selectedRole, configuration, customAttributes])
 
-  // Nuno Score — custom per-role weighted score over imported attributes
-  const hasNunoData = customAttributeColumns.length > 0 && Object.keys(customAttributes).length > 0
-
-  const nunoScoreByPlayerId = useMemo(() => {
-    const out: Record<string, number | null> = {}
-    if (!hasNunoData || !selectedRole) return out
-    const weights = nunoRoleWeights[selectedRole.id] || {}
-    const activeAttrs = customAttributeColumns.filter((c) => (Number(weights[c]) || 0) > 0)
-    if (activeAttrs.length === 0) {
-      for (const p of players) out[p.id] = null
-      return out
-    }
-    // Min/max per attribute over players that have it
-    const minMax: Record<string, { min: number; max: number }> = {}
-    for (const a of activeAttrs) {
-      let min = Infinity
-      let max = -Infinity
-      for (const p of players) {
-        const v = customAttributes[p.id]?.[a]
-        if (typeof v === 'number' && Number.isFinite(v)) {
-          if (v < min) min = v
-          if (v > max) max = v
-        }
-      }
-      minMax[a] = { min: min === Infinity ? 0 : min, max: max === -Infinity ? 0 : max }
-    }
-    const totalWeight = activeAttrs.reduce((s, a) => s + (Number(weights[a]) || 0), 0) || 1
-
-    for (const p of players) {
-      const playerAttrs = customAttributes[p.id]
-      if (!playerAttrs) {
-        out[p.id] = null
-        continue
-      }
-      let acc = 0
-      let weightUsed = 0
-      for (const a of activeAttrs) {
-        const v = playerAttrs[a]
-        if (typeof v !== 'number' || !Number.isFinite(v)) continue
-        const { min, max } = minMax[a]
-        const norm = max > min ? (v - min) / (max - min) : 0
-        acc += norm * 100 * (Number(weights[a]) || 0)
-        weightUsed += Number(weights[a]) || 0
-      }
-      out[p.id] = weightUsed > 0 ? acc / totalWeight : null
-    }
-    return out
-  }, [hasNunoData, selectedRole, customAttributes, customAttributeColumns, nunoRoleWeights, players])
+  // Compatibility flag — never show legacy Nuno column on this page
+  const hasNunoData = false
+  const nunoScoreByPlayerId: Record<string, number | null> = {}
 
   // Helper function to get player by ID
   const getPlayer = (playerId: string): Player | undefined => {
@@ -327,15 +273,15 @@ export default function ScoutingTablePage() {
         return analysis.position
       case 'Minutes':
         return analysis.minutes
-      case 'Metric Score %':
+      case 'Attr %':
         return analysis.customMetricPercentile ?? analysis.customMetricScore * 100
-      case 'Metric Score':
+      case 'Attribute Score':
         return analysis.customMetricScore
-      case 'Role Score':
+      case 'Metric Score':
         return analysis.fmdatalabRoleScore
       case 'Final Score':
         return analysis.finalScore
-      case 'Nuno Score': {
+      case 'Nuno Legacy': {
         const v = nunoScoreByPlayerId[analysis.playerId]
         return v ?? '-'
       }
@@ -345,15 +291,15 @@ export default function ScoutingTablePage() {
   }
 
   const getScoreDisplayValue = (column: string, numeric: number) => {
-    if (column === 'Metric Score %') {
+    if (column === 'Attr %') {
       return numeric
     }
 
-    if (column === 'Metric Score') {
+    if (column === 'Attribute Score') {
       return numeric <= 1 ? numeric * 100 : numeric
     }
 
-    if (column === 'Role Score') {
+    if (column === 'Metric Score') {
       return numeric
     }
 
@@ -368,7 +314,7 @@ export default function ScoutingTablePage() {
     const numeric = parseNumericValue(value)
     if (numeric === null) return 'text-slate-300'
 
-    if (['Metric Score %', 'Metric Score', 'Role Score', 'Final Score', 'Nuno Score'].includes(column)) {
+    if (['Attr %', 'Attribute Score', 'Metric Score', 'Final Score', 'Nuno Legacy'].includes(column)) {
       const scaled = getScoreDisplayValue(column, numeric)
       const tone = getScoreTone(scaled)
       return tone === 'green'
@@ -406,7 +352,7 @@ export default function ScoutingTablePage() {
   }
 
   const isColumnNumeric = (column: string) => {
-    const numericColumns = ['Rank', 'Age', 'Minutes', 'Metric Score %', 'Metric Score', 'Role Score', 'Final Score', 'Nuno Score']
+    const numericColumns = ['Rank', 'Age', 'Minutes', 'Attr %', 'Attribute Score', 'Metric Score', 'Final Score', 'Nuno Legacy']
     if (numericColumns.includes(column)) return true
 
     const exampleAnalysis = analyses[0]
@@ -438,11 +384,11 @@ export default function ScoutingTablePage() {
         'Age',
         'Position',
         'Minutes',
-        'Metric Score %',
+        'Attr %',
+        'Attribute Score',
         'Metric Score',
-        'Role Score',
         'Final Score',
-        ...(hasNunoData ? ['Nuno Score'] : []),
+        ...(hasNunoData ? ['Nuno Legacy'] : []),
         ...selectedColumns,
       ]
 
@@ -538,11 +484,11 @@ export default function ScoutingTablePage() {
       'Age',
       'Position',
       'Minutes',
-      'Metric Score %',
+      'Attr %',
+      'Attribute Score',
       'Metric Score',
-      'Role Score',
       'Final Score',
-      ...(hasNunoData ? ['Nuno Score'] : []),
+      ...(hasNunoData ? ['Nuno Legacy'] : []),
       ...selectedColumns,
     ],
     [selectedColumns, hasNunoData]
@@ -554,7 +500,7 @@ export default function ScoutingTablePage() {
     if (column === 'Club') return 130
     if (column === 'Age' || column === 'Minutes') return 70
     if (column === 'Position') return 90
-    if (['Metric Score %', 'Metric Score', 'Role Score', 'Final Score', 'Nuno Score'].includes(column)) return 140
+    if (['Attr %', 'Attribute Score', 'Metric Score', 'Final Score', 'Nuno Legacy'].includes(column)) return 140
     return 110
   }
 
@@ -769,13 +715,12 @@ export default function ScoutingTablePage() {
           <div className="max-w-5xl mx-auto">
             <div className="scout-panel p-10 text-center space-y-6">
               <Settings className="mx-auto h-10 w-10 text-cyan-300" />
-              <h2 className="text-3xl font-semibold text-white">No Configuration Found</h2>
+              <h2 className="text-3xl font-semibold text-white">Sem configuração Nuno</h2>
               <p className="text-slate-400">
-                It looks like there is no saved role configuration for the selected role yet.
-                Configure one to view the scouting dashboard.
+                Não existe configuração Nuno para esta role. Cria uma em Nuno Scores para ver o dashboard.
               </p>
-              <button onClick={() => navigate('/configuration')} className="btn-primary">
-                Configure Roles
+              <button onClick={() => navigate('/nuno-scores')} className="btn-primary">
+                Configurar Nuno Scores
               </button>
             </div>
           </div>
@@ -1094,8 +1039,8 @@ export default function ScoutingTablePage() {
           </div>
           <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-transparent p-4">
             <p className="text-[10px] uppercase tracking-[0.28em] text-violet-300/80">Configuration</p>
-            <p className="mt-1.5 text-lg font-semibold text-white truncate">{configuration.metricProfile.roleName || 'Unconfigured'}</p>
-            <p className="mt-0.5 font-mono text-[11px] text-slate-500 line-clamp-1">{configuration.finalScoreFormula}</p>
+            <p className="mt-1.5 text-lg font-semibold text-white truncate">{selectedRole?.name || 'Unconfigured'}</p>
+            <p className="mt-0.5 font-mono text-[11px] text-slate-500 line-clamp-1">{configuration.formula}</p>
           </div>
           <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-transparent p-4">
             <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-300/80">Columns</p>
@@ -1172,11 +1117,26 @@ export default function ScoutingTablePage() {
                   <TableHeaderCell label="Position" onResizeStart={(e) => startResize('Position', e)} />
                   <TableHeaderCell label="Minutes" onResizeStart={(e) => startResize('Minutes', e)} />
                   <TableHeaderCell
-                    label="Metric Score %"
+                    label="Attr %"
                     sortKey="customMetricPercentile"
                     currentSort={sortBy}
                     direction={sortDirection}
-                    onResizeStart={(e) => startResize('Metric Score %', e)}
+                    onResizeStart={(e) => startResize('Attr %', e)}
+                    onSort={(key) => {
+                      if (sortBy === key) {
+                        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+                      } else {
+                        setSortBy(key)
+                        setSortDirection('desc')
+                      }
+                    }}
+                  />
+                  <TableHeaderCell
+                    label="Attribute Score"
+                    sortKey="customMetricScore"
+                    currentSort={sortBy}
+                    direction={sortDirection}
+                    onResizeStart={(e) => startResize('Attribute Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1188,25 +1148,10 @@ export default function ScoutingTablePage() {
                   />
                   <TableHeaderCell
                     label="Metric Score"
-                    sortKey="customMetricScore"
-                    currentSort={sortBy}
-                    direction={sortDirection}
-                    onResizeStart={(e) => startResize('Metric Score', e)}
-                    onSort={(key) => {
-                      if (sortBy === key) {
-                        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-                      } else {
-                        setSortBy(key)
-                        setSortDirection('desc')
-                      }
-                    }}
-                  />
-                  <TableHeaderCell
-                    label="Role Score"
                     sortKey="fmdatalabRoleScore"
                     currentSort={sortBy}
                     direction={sortDirection}
-                    onResizeStart={(e) => startResize('Role Score', e)}
+                    onResizeStart={(e) => startResize('Metric Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1233,12 +1178,12 @@ export default function ScoutingTablePage() {
                   />
                   {hasNunoData && (
                     <TableHeaderCell
-                      label="Nuno Score"
-                      sortKey="Nuno Score"
-                      currentSort={columnSortBy['Nuno Score'] ? 'Nuno Score' : undefined}
-                      direction={columnSortBy['Nuno Score']}
+                      label="Nuno Legacy"
+                      sortKey="Nuno Legacy"
+                      currentSort={columnSortBy['Nuno Legacy'] ? 'Nuno Legacy' : undefined}
+                      direction={columnSortBy['Nuno Legacy']}
                       onSort={toggleColumnSort}
-                      onResizeStart={(e) => startResize('Nuno Score', e)}
+                      onResizeStart={(e) => startResize('Nuno Legacy', e)}
                     />
                   )}
                   {selectedColumns.map((column) => (
@@ -1254,7 +1199,7 @@ export default function ScoutingTablePage() {
                   ))}
                 </tr>
                 <tr className="bg-slate-950/95">
-                  {['Rank', 'Player', 'Club', 'Age', 'Position', 'Minutes', 'Metric Score %', 'Metric Score', 'Role Score', 'Final Score', ...(hasNunoData ? ['Nuno Score'] : []), ...selectedColumns].map((column) => (
+                  {['Rank', 'Player', 'Club', 'Age', 'Position', 'Minutes', 'Attr %', 'Attribute Score', 'Metric Score', 'Final Score', ...(hasNunoData ? ['Nuno Legacy'] : []), ...selectedColumns].map((column) => (
                     <th key={`${column}-filter`} className="align-top">
                       {isColumnNumeric(column) ? (
                         <div className="grid gap-2">

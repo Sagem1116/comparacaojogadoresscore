@@ -1,0 +1,312 @@
+import type { MetricCategoryInfo } from './metricasInfo'
+
+/**
+ * Pesos personalizados (Nuno) por role.
+ * Estrutura: cada role aparece em duas categorias paralelas — "Atributos" e "Métricas-chave".
+ * Os pesos são percentagens de importância dentro do respetivo grupo.
+ */
+export const metricasInfoNunoData: MetricCategoryInfo[] = [
+  {
+    category: 'Atributos por Role',
+    roles: [
+      {
+        name: '🧠 Central Defensivo (CB – Posicional / Inteligente)',
+        description: 'Central bom aqui não é o que “tackla mais”, é o que lê o jogo e intercepta mais.',
+        metrics: [
+          { name: 'Positioning', weight: 22, description: '% importância' },
+          { name: 'Anticipation', weight: 20, description: '% importância' },
+          { name: 'Tackling', weight: 15, description: '% importância' },
+          { name: 'Jumping Reach', weight: 12, description: '% importância' },
+          { name: 'Strength', weight: 10, description: '% importância' },
+          { name: 'Concentration', weight: 10, description: '% importância' },
+          { name: 'Heading', weight: 6, description: '% importância' },
+          { name: 'Pace', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🧱 Central Defensivo (Stopper Agressivo)',
+        description: 'Sai a marcar à frente, ganha duelos físicos e força o erro.',
+        metrics: [
+          { name: 'Tackling', weight: 25, description: '% importância' },
+          { name: 'Strength', weight: 18, description: '% importância' },
+          { name: 'Bravery', weight: 15, description: '% importância' },
+          { name: 'Aggression', weight: 12, description: '% importância' },
+          { name: 'Jumping Reach', weight: 10, description: '% importância' },
+          { name: 'Positioning', weight: 10, description: '% importância' },
+          { name: 'Concentration', weight: 10, description: '% importância' },
+        ],
+      },
+      {
+        name: '🧠 Médio Defensivo (Anchor / DM)',
+        description: 'Protetor da zona à frente da defesa, lê e distribui simples.',
+        metrics: [
+          { name: 'Positioning', weight: 25, description: '% importância' },
+          { name: 'Anticipation', weight: 20, description: '% importância' },
+          { name: 'Decisions', weight: 15, description: '% importância' },
+          { name: 'Work Rate', weight: 12, description: '% importância' },
+          { name: 'Tackling', weight: 10, description: '% importância' },
+          { name: 'Passing', weight: 10, description: '% importância' },
+          { name: 'Stamina', weight: 8, description: '% importância' },
+        ],
+      },
+      {
+        name: '⚙️ Box-to-Box',
+        description: 'Pulmão da equipa, defende e ataca em todo o lado.',
+        metrics: [
+          { name: 'Stamina', weight: 20, description: '% importância' },
+          { name: 'Work Rate', weight: 20, description: '% importância' },
+          { name: 'Decisions', weight: 15, description: '% importância' },
+          { name: 'Passing', weight: 10, description: '% importância' },
+          { name: 'Off the Ball', weight: 10, description: '% importância' },
+          { name: 'Tackling', weight: 10, description: '% importância' },
+          { name: 'Pace', weight: 10, description: '% importância' },
+          { name: 'Vision', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🎨 Médio Criativo (Playmaker)',
+        description: 'Cérebro: visão, último passe e ritmo.',
+        metrics: [
+          { name: 'Vision', weight: 25, description: '% importância' },
+          { name: 'Passing', weight: 25, description: '% importância' },
+          { name: 'Decisions', weight: 20, description: '% importância' },
+          { name: 'Technique', weight: 10, description: '% importância' },
+          { name: 'First Touch', weight: 10, description: '% importância' },
+          { name: 'Flair', weight: 5, description: '% importância' },
+          { name: 'Off the Ball', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🪄 Mezzala',
+        description: 'Médio interior que combina criação, drible e chegada à área.',
+        metrics: [
+          { name: 'Vision', weight: 20, description: '% importância' },
+          { name: 'Passing', weight: 15, description: '% importância' },
+          { name: 'Off the Ball', weight: 15, description: '% importância' },
+          { name: 'Decisions', weight: 15, description: '% importância' },
+          { name: 'Dribbling', weight: 10, description: '% importância' },
+          { name: 'Work Rate', weight: 10, description: '% importância' },
+          { name: 'Technique', weight: 10, description: '% importância' },
+          { name: 'Stamina', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🪽 Extremo Clássico (Winger)',
+        description: 'Largura, velocidade e cruzamentos pelo flanco.',
+        metrics: [
+          { name: 'Crossing', weight: 25, description: '% importância' },
+          { name: 'Pace', weight: 20, description: '% importância' },
+          { name: 'Acceleration', weight: 15, description: '% importância' },
+          { name: 'Work Rate', weight: 10, description: '% importância' },
+          { name: 'Dribbling', weight: 10, description: '% importância' },
+          { name: 'Stamina', weight: 10, description: '% importância' },
+          { name: 'Vision', weight: 5, description: '% importância' },
+          { name: 'Technique', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🪄 Extremo Invertido (Inside Forward)',
+        description: 'Corta para dentro, dribla e remata de pé contrário.',
+        metrics: [
+          { name: 'Dribbling', weight: 20, description: '% importância' },
+          { name: 'Acceleration', weight: 15, description: '% importância' },
+          { name: 'Pace', weight: 15, description: '% importância' },
+          { name: 'Decisions', weight: 15, description: '% importância' },
+          { name: 'Finishing', weight: 10, description: '% importância' },
+          { name: 'Technique', weight: 10, description: '% importância' },
+          { name: 'Off the Ball', weight: 10, description: '% importância' },
+          { name: 'Flair', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🎯 Avançado (Pressing Forward)',
+        description: 'Primeiro defensor: pressão alta, intensidade e gols.',
+        metrics: [
+          { name: 'Work Rate', weight: 20, description: '% importância' },
+          { name: 'Stamina', weight: 15, description: '% importância' },
+          { name: 'Off the Ball', weight: 15, description: '% importância' },
+          { name: 'Aggression', weight: 10, description: '% importância' },
+          { name: 'Finishing', weight: 10, description: '% importância' },
+          { name: 'Strength', weight: 10, description: '% importância' },
+          { name: 'Pace', weight: 10, description: '% importância' },
+          { name: 'Decisions', weight: 10, description: '% importância' },
+        ],
+      },
+      {
+        name: '🎯 Avançado Finalizador (Poacher)',
+        description: 'Especialista de área: posicionamento e definição.',
+        metrics: [
+          { name: 'Finishing', weight: 30, description: '% importância' },
+          { name: 'Off the Ball', weight: 20, description: '% importância' },
+          { name: 'Composure', weight: 15, description: '% importância' },
+          { name: 'Acceleration', weight: 10, description: '% importância' },
+          { name: 'Pace', weight: 10, description: '% importância' },
+          { name: 'Technique', weight: 10, description: '% importância' },
+          { name: 'Decisions', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🔁 Lateral (Fullback equilibrado)',
+        description: 'Sobe e desce o corredor, cruza e defende.',
+        metrics: [
+          { name: 'Stamina', weight: 20, description: '% importância' },
+          { name: 'Work Rate', weight: 20, description: '% importância' },
+          { name: 'Crossing', weight: 15, description: '% importância' },
+          { name: 'Positioning', weight: 15, description: '% importância' },
+          { name: 'Tackling', weight: 10, description: '% importância' },
+          { name: 'Pace', weight: 10, description: '% importância' },
+          { name: 'Acceleration', weight: 5, description: '% importância' },
+          { name: 'Decisions', weight: 5, description: '% importância' },
+        ],
+      },
+      {
+        name: '🔁 Lateral Invertido',
+        description: 'Recolhe para o miolo em posse, organiza e protege transições.',
+        metrics: [
+          { name: 'Passing', weight: 20, description: '% importância' },
+          { name: 'Decisions', weight: 20, description: '% importância' },
+          { name: 'Positioning', weight: 15, description: '% importância' },
+          { name: 'Vision', weight: 15, description: '% importância' },
+          { name: 'Technique', weight: 10, description: '% importância' },
+          { name: 'Work Rate', weight: 10, description: '% importância' },
+          { name: 'First Touch', weight: 10, description: '% importância' },
+        ],
+      },
+    ],
+  },
+  {
+    category: 'Métricas-chave por Role',
+    roles: [
+      {
+        name: '🧠 Central Defensivo (CB – Posicional / Inteligente)',
+        description: 'Leitura > contacto. Intercepta antes do duelo.',
+        metrics: [
+          { name: 'Interceptions', weight: 30, description: '% impacto' },
+          { name: 'Clearances', weight: 20, description: '% impacto' },
+          { name: 'Tackles Completed', weight: 20, description: '% impacto' },
+          { name: 'Key Headers Won', weight: 15, description: '% impacto' },
+          { name: 'Blocks', weight: 15, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🧱 Central Defensivo (Stopper Agressivo)',
+        description: 'Volume físico e disciplina nas faltas.',
+        metrics: [
+          { name: 'Tackles Completed', weight: 35, description: '% impacto' },
+          { name: 'Blocks', weight: 25, description: '% impacto' },
+          { name: 'Clearances', weight: 20, description: '% impacto' },
+          { name: 'Fouls Committed', weight: 10, description: '% impacto (controlo)', inverse: true },
+          { name: 'Headers Won', weight: 10, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🧠 Médio Defensivo (Anchor / DM)',
+        description: 'Cortar linhas de passe e manter a posse simples.',
+        metrics: [
+          { name: 'Interceptions', weight: 35, description: '% impacto' },
+          { name: 'Press Completed', weight: 20, description: '% impacto' },
+          { name: 'Passes Completed', weight: 20, description: '% impacto' },
+          { name: 'Tackles Completed', weight: 15, description: '% impacto' },
+          { name: 'Distance Covered', weight: 10, description: '% impacto' },
+        ],
+      },
+      {
+        name: '⚙️ Box-to-Box',
+        description: 'Volume físico e contribuição em todas as fases.',
+        metrics: [
+          { name: 'Distance Covered', weight: 30, description: '% impacto' },
+          { name: 'Sprints', weight: 20, description: '% impacto' },
+          { name: 'Passes Completed', weight: 20, description: '% impacto' },
+          { name: 'Press Attempts', weight: 15, description: '% impacto' },
+          { name: 'Tackles Completed', weight: 15, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🎨 Médio Criativo (Playmaker)',
+        description: 'Criação direta: passes-chave e verticalidade.',
+        metrics: [
+          { name: 'Key Passes', weight: 40, description: '% impacto' },
+          { name: 'Forward Passes', weight: 25, description: '% impacto' },
+          { name: 'Passes Completed', weight: 20, description: '% impacto' },
+          { name: 'Crosses Completed', weight: 15, description: '% impacto (se aplicável)' },
+        ],
+      },
+      {
+        name: '🪄 Mezzala',
+        description: 'Criação + drible + presença em zonas interiores.',
+        metrics: [
+          { name: 'Key Passes', weight: 30, description: '% impacto' },
+          { name: 'Dribbles', weight: 25, description: '% impacto' },
+          { name: 'Passes Completed', weight: 20, description: '% impacto' },
+          { name: 'Distance Covered', weight: 15, description: '% impacto' },
+          { name: 'Forward Passes', weight: 10, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🪽 Extremo Clássico (Winger)',
+        description: 'Volume de cruzamentos e arranques pelo flanco.',
+        metrics: [
+          { name: 'Cross Attempts', weight: 30, description: '% impacto' },
+          { name: 'Crosses Completed', weight: 25, description: '% impacto' },
+          { name: 'Dribbles', weight: 20, description: '% impacto' },
+          { name: 'Sprints', weight: 15, description: '% impacto' },
+          { name: 'Distance Covered', weight: 10, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🪄 Extremo Invertido (Inside Forward)',
+        description: 'Drible para dentro, finalização e ligação ofensiva.',
+        metrics: [
+          { name: 'Dribbles', weight: 30, description: '% impacto' },
+          { name: 'Key Passes', weight: 20, description: '% impacto' },
+          { name: 'Shots on Target', weight: 20, description: '% impacto' },
+          { name: 'Sprints', weight: 15, description: '% impacto' },
+          { name: 'Passes Completed', weight: 15, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🎯 Avançado (Pressing Forward)',
+        description: 'Pressão + remates + intensidade física.',
+        metrics: [
+          { name: 'Press Attempts', weight: 30, description: '% impacto' },
+          { name: 'Sprints', weight: 20, description: '% impacto' },
+          { name: 'Shots', weight: 20, description: '% impacto' },
+          { name: 'Distance Covered', weight: 15, description: '% impacto' },
+          { name: 'Tackles Completed', weight: 15, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🎯 Avançado Finalizador (Poacher)',
+        description: 'Volume e qualidade de finalização na área.',
+        metrics: [
+          { name: 'Goals', weight: 40, description: '% impacto' },
+          { name: 'Shots on Target', weight: 30, description: '% impacto' },
+          { name: 'Key Shots', weight: 15, description: '% impacto' },
+          { name: 'Touches in Box', weight: 15, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🔁 Lateral (Fullback equilibrado)',
+        description: 'Cobertura física + apoio ofensivo pelo flanco.',
+        metrics: [
+          { name: 'Distance Covered', weight: 30, description: '% impacto' },
+          { name: 'Cross Attempts', weight: 20, description: '% impacto' },
+          { name: 'Tackles Completed', weight: 20, description: '% impacto' },
+          { name: 'Sprints', weight: 15, description: '% impacto' },
+          { name: 'Crosses Completed', weight: 15, description: '% impacto' },
+        ],
+      },
+      {
+        name: '🔁 Lateral Invertido',
+        description: 'Construção a partir do corredor para zonas interiores.',
+        metrics: [
+          { name: 'Passes Completed', weight: 30, description: '% impacto' },
+          { name: 'Forward Passes', weight: 25, description: '% impacto' },
+          { name: 'Key Passes', weight: 20, description: '% impacto' },
+          { name: 'Press Completed', weight: 15, description: '% impacto' },
+          { name: 'Distance Covered', weight: 10, description: '% impacto' },
+        ],
+      },
+    ],
+  },
+]
