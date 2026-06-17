@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type ReactNode } from 'react'
+import { useState, useMemo, useEffect, useRef, type ReactNode, type MouseEvent as ReactMouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDataStore } from '../../stores/dataStore'
 import { ChevronLeft, Copy, Check, Download, Settings, Search } from 'lucide-react'
@@ -102,6 +102,9 @@ export default function ScoutingTablePage() {
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({})
   const [columnFilterRanges, setColumnFilterRanges] = useState<Record<string, { min: string; max: string }>>({})
   const [columnSortBy, setColumnSortBy] = useState<Record<string, 'asc' | 'desc'>>({})
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({})
+  const hasInitializedDefaultsRef = useRef(false)
+  const hadSavedStateRef = useRef(false)
   const [salaryMin, setSalaryMin] = useState('')
   const [salaryMax, setSalaryMax] = useState('')
   const [transferMin, setTransferMin] = useState('')
@@ -116,6 +119,7 @@ export default function ScoutingTablePage() {
       if (!raw) return
 
       const parsed = JSON.parse(raw)
+      hadSavedStateRef.current = true
       if (Array.isArray(parsed.selectedColumns)) {
         setSelectedColumns(parsed.selectedColumns)
       }
@@ -126,6 +130,10 @@ export default function ScoutingTablePage() {
 
       if (parsed.columnFilterRanges && typeof parsed.columnFilterRanges === 'object') {
         setColumnFilterRanges(parsed.columnFilterRanges)
+      }
+
+      if (parsed.columnWidths && typeof parsed.columnWidths === 'object') {
+        setColumnWidths(parsed.columnWidths)
       }
 
       if (typeof parsed.salaryMin === 'string') {
@@ -152,6 +160,7 @@ export default function ScoutingTablePage() {
       selectedColumns,
       columnFilters,
       columnFilterRanges,
+      columnWidths,
       salaryMin,
       salaryMax,
       transferMin,
@@ -159,7 +168,29 @@ export default function ScoutingTablePage() {
     }
 
     window.localStorage.setItem(STORAGE_KEY_SCOUTING_STATE, JSON.stringify(stateToSave))
-  }, [selectedColumns, columnFilters, columnFilterRanges, salaryMin, salaryMax, transferMin, transferMax])
+  }, [selectedColumns, columnFilters, columnFilterRanges, columnWidths, salaryMin, salaryMax, transferMin, transferMax])
+
+  // Default visible columns when nothing is saved yet:
+  // include wage + transfer value Stats columns by default
+  useEffect(() => {
+    if (hasInitializedDefaultsRef.current) return
+    if (players.length === 0) return
+    if (hadSavedStateRef.current) {
+      hasInitializedDefaultsRef.current = true
+      return
+    }
+    const defaults = [
+      ...transferValueColumns.map((c) => `Stats: ${c}`),
+      ...salaryColumns.map((c) => `Stats: ${c}`),
+    ]
+    if (defaults.length > 0) {
+      setSelectedColumns((prev) => {
+        if (prev.length > 0) return prev
+        return Array.from(new Set(defaults))
+      })
+    }
+    hasInitializedDefaultsRef.current = true
+  }, [players, salaryColumns, transferValueColumns])
 
   const filteredAvailableColumns = useMemo(() => {
     const lowerSearch = columnSearch.toLowerCase().trim()
@@ -440,6 +471,76 @@ export default function ScoutingTablePage() {
   }, [filteredAnalyses])
 
   const paginatedData = usePagination(filteredAnalyses, pageSize, pageIndex)
+
+  // All columns rendered in the table, in order — used for colgroup widths
+  const orderedTableColumns = useMemo(
+    () => [
+      'Rank',
+      'Player',
+      'Club',
+      'Age',
+      'Position',
+      'Minutes',
+      'Metric Score %',
+      'Metric Score',
+      'Role Score',
+      'Final Score',
+      ...selectedColumns,
+    ],
+    [selectedColumns]
+  )
+
+  const defaultColumnWidth = (column: string) => {
+    if (column === 'Rank') return 80
+    if (column === 'Player') return 240
+    if (column === 'Club') return 180
+    if (column === 'Age' || column === 'Minutes') return 100
+    if (column === 'Position') return 120
+    if (['Metric Score %', 'Metric Score', 'Role Score', 'Final Score'].includes(column)) return 200
+    return 180
+  }
+
+  const startResize = (column: string, event: ReactMouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const startX = event.clientX
+    const startWidth = columnWidths[column] ?? defaultColumnWidth(column)
+
+    const onMove = (ev: MouseEvent) => {
+      const delta = ev.clientX - startX
+      const next = Math.max(60, Math.min(900, startWidth + delta))
+      setColumnWidths((prev) => ({ ...prev, [column]: next }))
+    }
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
+  // Unique-value suggestions for autofill on text filter inputs
+  const columnSuggestions = useMemo(() => {
+    const result: Record<string, string[]> = {}
+    const collect = (column: string) => {
+      if (isColumnNumeric(column)) return
+      const seen = new Set<string>()
+      for (const a of analyses) {
+        const v = getAnalysisValueForColumn(a, column)
+        if (v === null || v === undefined || v === '') continue
+        const s = String(v)
+        if (!seen.has(s)) seen.add(s)
+        if (seen.size >= 300) break
+      }
+      result[column] = Array.from(seen).sort()
+    }
+    ;['Player', 'Club', 'Position', ...selectedColumns].forEach(collect)
+    return result
+  }, [analyses, selectedColumns])
 
   const analysisSummary = useMemo(() => {
     if (filteredAnalyses.length === 0) {
@@ -967,7 +1068,15 @@ export default function ScoutingTablePage() {
           </div>
 
           <div className="overflow-x-auto table-scrollbar">
-            <table className="scout-table">
+            <table className="scout-table" style={{ tableLayout: 'fixed', width: 'max-content', minWidth: '100%' }}>
+              <colgroup>
+                {orderedTableColumns.map((column) => (
+                  <col
+                    key={column}
+                    style={{ width: `${columnWidths[column] ?? defaultColumnWidth(column)}px` }}
+                  />
+                ))}
+              </colgroup>
               <thead className="bg-slate-950/95 backdrop-blur-xl sticky top-0 z-10">
                 <tr>
                   <TableHeaderCell
@@ -975,6 +1084,7 @@ export default function ScoutingTablePage() {
                     sortKey="rank"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Rank', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -989,6 +1099,7 @@ export default function ScoutingTablePage() {
                     sortKey="playerName"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Player', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -998,15 +1109,16 @@ export default function ScoutingTablePage() {
                       }
                     }}
                   />
-                  <TableHeaderCell label="Club" />
-                  <TableHeaderCell label="Age" />
-                  <TableHeaderCell label="Position" />
-                  <TableHeaderCell label="Minutes" />
+                  <TableHeaderCell label="Club" onResizeStart={(e) => startResize('Club', e)} />
+                  <TableHeaderCell label="Age" onResizeStart={(e) => startResize('Age', e)} />
+                  <TableHeaderCell label="Position" onResizeStart={(e) => startResize('Position', e)} />
+                  <TableHeaderCell label="Minutes" onResizeStart={(e) => startResize('Minutes', e)} />
                   <TableHeaderCell
                     label="Metric Score %"
                     sortKey="customMetricPercentile"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Metric Score %', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1021,6 +1133,7 @@ export default function ScoutingTablePage() {
                     sortKey="customMetricScore"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Metric Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1035,6 +1148,7 @@ export default function ScoutingTablePage() {
                     sortKey="fmdatalabRoleScore"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Role Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1049,6 +1163,7 @@ export default function ScoutingTablePage() {
                     sortKey="finalScore"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Final Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1066,6 +1181,7 @@ export default function ScoutingTablePage() {
                       currentSort={columnSortBy[column] ? column : undefined}
                       direction={columnSortBy[column]}
                       onSort={toggleColumnSort}
+                      onResizeStart={(e) => startResize(column, e)}
                     />
                   ))}
                 </tr>
@@ -1106,18 +1222,29 @@ export default function ScoutingTablePage() {
                           />
                         </div>
                       ) : (
-                        <input
-                          type="text"
-                          value={columnFilters[column] || ''}
-                          onChange={(e) =>
-                            setColumnFilters((prev) => ({
-                              ...prev,
-                              [column]: e.target.value,
-                            }))
-                          }
-                          placeholder={`Search ${column}`}
-                          className="scout-input scout-filter-input"
-                        />
+                        <>
+                          <input
+                            type="text"
+                            list={`dl-${column}`}
+                            autoComplete="off"
+                            value={columnFilters[column] || ''}
+                            onChange={(e) =>
+                              setColumnFilters((prev) => ({
+                                ...prev,
+                                [column]: e.target.value,
+                              }))
+                            }
+                            placeholder={`Search ${column}`}
+                            className="scout-input scout-filter-input"
+                          />
+                          {columnSuggestions[column] && columnSuggestions[column].length > 0 && (
+                            <datalist id={`dl-${column}`}>
+                              {columnSuggestions[column].map((s) => (
+                                <option key={s} value={s} />
+                              ))}
+                            </datalist>
+                          )}
+                        </>
                       )}
                     </th>
                   ))}
@@ -1236,6 +1363,7 @@ interface TableHeaderCellProps {
   currentSort?: string
   direction?: 'asc' | 'desc'
   onSort?: (key: string) => void
+  onResizeStart?: (event: ReactMouseEvent) => void
 }
 
 function TableHeaderCell({
@@ -1244,19 +1372,28 @@ function TableHeaderCell({
   currentSort,
   direction,
   onSort,
+  onResizeStart,
 }: TableHeaderCellProps) {
   const isSorted = sortKey && currentSort === sortKey
   return (
     <th
       onClick={() => sortKey && onSort?.(sortKey)}
-      className={`px-4 py-4 text-left font-semibold tracking-wide text-slate-200 uppercase text-[11px] ${sortKey ? 'cursor-pointer hover:bg-slate-700/70' : ''}`}
+      className={`relative px-4 py-4 text-left font-semibold tracking-wide text-slate-200 uppercase text-[11px] ${sortKey ? 'cursor-pointer hover:bg-slate-700/70' : ''}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 truncate">
         {label}
         {isSorted && (
           <span className="text-xs text-cyan-300">{direction === 'asc' ? '↑' : '↓'}</span>
         )}
       </div>
+      {onResizeStart && (
+        <span
+          onMouseDown={onResizeStart}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none bg-transparent hover:bg-cyan-400/40"
+          title="Drag to resize"
+        />
+      )}
     </th>
   )
 }
