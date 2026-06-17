@@ -3,6 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useDataStore } from '../../stores/dataStore'
 import { ChevronLeft, ArrowUp, ArrowDown } from 'lucide-react'
 import { PlayerAnalysis } from '../../types/index'
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+} from 'recharts'
+import PlayerAIInsight from '../PlayerAIInsight'
 
 const PLAYER_INFO_KEYS = new Set([
   'playername',
@@ -95,6 +104,15 @@ export default function PlayerProfilePage() {
   const summaryCount = playerStatEntries.length
   const metricPreview = playerStatEntries.slice(0, 12)
 
+  // Radar data for top role scores (normalized to 0-100)
+  const roleRadarData = useMemo(() => {
+    return playerRoleScoreEntries.slice(0, 8).map(([role, score]) => ({
+      role: role.replace(/ Score$/i, '').replace(/\b\w+\b/g, (w) => w[0]).slice(0, 6),
+      fullRole: role,
+      value: Math.min(100, typeof score === 'number' ? score : Number(score) || 0),
+    }))
+  }, [playerRoleScoreEntries])
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
@@ -153,6 +171,44 @@ export default function PlayerProfilePage() {
               <p className="mt-2 text-sm font-mono text-slate-300 break-all">{player.id}</p>
             </div>
           </div>
+        </div>
+
+        {/* Radar + AI Insight section */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-6 mb-8">
+          <section className="bg-slate-900 border border-slate-700 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Role Profile</h2>
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                Top {roleRadarData.length}
+              </span>
+            </div>
+            {roleRadarData.length > 0 ? (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={roleRadarData}>
+                    <PolarGrid stroke="#334155" />
+                    <PolarAngleAxis dataKey="role" tick={{ fill: '#cbd5e1', fontSize: 11 }} />
+                    <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
+                    <Radar
+                      name={player.playerName}
+                      dataKey="value"
+                      stroke="#a78bfa"
+                      fill="#a78bfa"
+                      fillOpacity={0.45}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="text-slate-400 text-sm">No role scores available.</p>
+            )}
+          </section>
+
+          <PlayerAIInsight
+            player={player}
+            topRoles={playerRoleScoreEntries as [string, string | number][]}
+            topStats={playerStatEntries}
+          />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-8">

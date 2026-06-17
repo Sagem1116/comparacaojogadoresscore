@@ -511,6 +511,7 @@ export default function ScoutingTablePage() {
             </div>
           </div>
         </div>
+        <AIScoutAssistant analyses={[]} role={null} />
       </div>
     )
   }
