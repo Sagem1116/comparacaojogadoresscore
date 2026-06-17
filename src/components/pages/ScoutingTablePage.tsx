@@ -472,6 +472,76 @@ export default function ScoutingTablePage() {
 
   const paginatedData = usePagination(filteredAnalyses, pageSize, pageIndex)
 
+  // All columns rendered in the table, in order — used for colgroup widths
+  const orderedTableColumns = useMemo(
+    () => [
+      'Rank',
+      'Player',
+      'Club',
+      'Age',
+      'Position',
+      'Minutes',
+      'Metric Score %',
+      'Metric Score',
+      'Role Score',
+      'Final Score',
+      ...selectedColumns,
+    ],
+    [selectedColumns]
+  )
+
+  const defaultColumnWidth = (column: string) => {
+    if (column === 'Rank') return 80
+    if (column === 'Player') return 240
+    if (column === 'Club') return 180
+    if (column === 'Age' || column === 'Minutes') return 100
+    if (column === 'Position') return 120
+    if (['Metric Score %', 'Metric Score', 'Role Score', 'Final Score'].includes(column)) return 200
+    return 180
+  }
+
+  const startResize = (column: string, event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const startX = event.clientX
+    const startWidth = columnWidths[column] ?? defaultColumnWidth(column)
+
+    const onMove = (ev: MouseEvent) => {
+      const delta = ev.clientX - startX
+      const next = Math.max(60, Math.min(900, startWidth + delta))
+      setColumnWidths((prev) => ({ ...prev, [column]: next }))
+    }
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
+  // Unique-value suggestions for autofill on text filter inputs
+  const columnSuggestions = useMemo(() => {
+    const result: Record<string, string[]> = {}
+    const collect = (column: string) => {
+      if (isColumnNumeric(column)) return
+      const seen = new Set<string>()
+      for (const a of analyses) {
+        const v = getAnalysisValueForColumn(a, column)
+        if (v === null || v === undefined || v === '') continue
+        const s = String(v)
+        if (!seen.has(s)) seen.add(s)
+        if (seen.size >= 300) break
+      }
+      result[column] = Array.from(seen).sort()
+    }
+    ;['Player', 'Club', 'Position', ...selectedColumns].forEach(collect)
+    return result
+  }, [analyses, selectedColumns])
+
   const analysisSummary = useMemo(() => {
     if (filteredAnalyses.length === 0) {
       return {
