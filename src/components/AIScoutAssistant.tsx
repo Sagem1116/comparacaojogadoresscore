@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Sparkles, Send, Loader2, MessageSquare, X } from 'lucide-react'
 import { supabase } from '../integrations/supabase/client'
-import { PlayerAnalysis, Role } from '../types/index'
+import { Player, PlayerAnalysis, Role } from '../types/index'
 
 interface AIScoutAssistantProps {
   analyses: PlayerAnalysis[]
+  players?: Player[]
   role: Role | null
 }
 
@@ -18,7 +19,7 @@ const SUGGESTIONS = [
   'Who fits a high-pressing system best?',
 ]
 
-export default function AIScoutAssistant({ analyses, role }: AIScoutAssistantProps) {
+export default function AIScoutAssistant({ analyses, players = [], role }: AIScoutAssistantProps) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
@@ -28,18 +29,36 @@ export default function AIScoutAssistant({ analyses, role }: AIScoutAssistantPro
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const compactData = useMemo(() => {
-    return analyses.slice(0, 200).map((a) => ({
-      name: a.playerName,
-      club: a.club,
-      age: a.age,
-      position: a.position,
-      minutes: a.minutes,
-      finalScore: Number(a.finalScore?.toFixed?.(2) ?? a.finalScore),
-      roleScore: Number(a.fmdatalabRoleScore?.toFixed?.(2) ?? a.fmdatalabRoleScore),
-      metricScore: Number(a.customMetricScore?.toFixed?.(3) ?? a.customMetricScore),
-      rank: a.rank,
-    }))
-  }, [analyses])
+    if (analyses.length > 0) {
+      return analyses.slice(0, 200).map((a) => ({
+        name: a.playerName,
+        club: a.club,
+        age: a.age,
+        position: a.position,
+        minutes: a.minutes,
+        finalScore: Number(a.finalScore?.toFixed?.(2) ?? a.finalScore),
+        roleScore: Number(a.fmdatalabRoleScore?.toFixed?.(2) ?? a.fmdatalabRoleScore),
+        metricScore: Number(a.customMetricScore?.toFixed?.(3) ?? a.customMetricScore),
+        rank: a.rank,
+      }))
+    }
+
+    return players.slice(0, 200).map((player) => {
+      const roleScores = Object.entries(player.roleScores || {})
+        .filter(([key]) => !['playerName', 'club', 'age'].includes(key))
+        .slice(0, 20)
+        .map(([roleName, score]) => ({ role: roleName, score }))
+
+      return {
+        name: player.playerName,
+        club: player.club,
+        age: player.age,
+        position: player.position,
+        minutes: player.minutes,
+        roleScores,
+      }
+    })
+  }, [analyses, players])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -92,7 +111,7 @@ export default function AIScoutAssistant({ analyses, role }: AIScoutAssistantPro
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full border border-violet-500/50 bg-gradient-to-br from-violet-600 to-cyan-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_0_30px_rgba(139,92,246,0.4)] transition hover:scale-105 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)]"
+        className="fixed bottom-6 right-6 z-[9999] flex items-center gap-2 rounded-full border border-violet-500/50 bg-gradient-to-br from-violet-600 to-cyan-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_0_30px_rgba(139,92,246,0.4)] transition hover:scale-105 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)]"
       >
         <Sparkles className="h-4 w-4" />
         AI Scout
@@ -101,7 +120,7 @@ export default function AIScoutAssistant({ analyses, role }: AIScoutAssistantPro
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex h-[640px] max-h-[85vh] w-[440px] max-w-[95vw] flex-col overflow-hidden rounded-2xl border border-violet-500/30 bg-slate-950/95 shadow-[0_0_60px_rgba(139,92,246,0.25)] backdrop-blur-xl">
+    <div className="fixed bottom-6 right-6 z-[9999] flex h-[640px] max-h-[85vh] w-[440px] max-w-[95vw] flex-col overflow-hidden rounded-2xl border border-violet-500/30 bg-slate-950/95 shadow-[0_0_60px_rgba(139,92,246,0.25)] backdrop-blur-xl">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-800/80 bg-gradient-to-r from-violet-950/80 to-slate-950/80 px-4 py-3">
         <div className="flex items-center gap-2">
