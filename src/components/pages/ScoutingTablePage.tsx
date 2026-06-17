@@ -1068,7 +1068,15 @@ export default function ScoutingTablePage() {
           </div>
 
           <div className="overflow-x-auto table-scrollbar">
-            <table className="scout-table">
+            <table className="scout-table" style={{ tableLayout: 'fixed', width: 'max-content', minWidth: '100%' }}>
+              <colgroup>
+                {orderedTableColumns.map((column) => (
+                  <col
+                    key={column}
+                    style={{ width: `${columnWidths[column] ?? defaultColumnWidth(column)}px` }}
+                  />
+                ))}
+              </colgroup>
               <thead className="bg-slate-950/95 backdrop-blur-xl sticky top-0 z-10">
                 <tr>
                   <TableHeaderCell
@@ -1076,6 +1084,7 @@ export default function ScoutingTablePage() {
                     sortKey="rank"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Rank', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1090,6 +1099,7 @@ export default function ScoutingTablePage() {
                     sortKey="playerName"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Player', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1099,15 +1109,16 @@ export default function ScoutingTablePage() {
                       }
                     }}
                   />
-                  <TableHeaderCell label="Club" />
-                  <TableHeaderCell label="Age" />
-                  <TableHeaderCell label="Position" />
-                  <TableHeaderCell label="Minutes" />
+                  <TableHeaderCell label="Club" onResizeStart={(e) => startResize('Club', e)} />
+                  <TableHeaderCell label="Age" onResizeStart={(e) => startResize('Age', e)} />
+                  <TableHeaderCell label="Position" onResizeStart={(e) => startResize('Position', e)} />
+                  <TableHeaderCell label="Minutes" onResizeStart={(e) => startResize('Minutes', e)} />
                   <TableHeaderCell
                     label="Metric Score %"
                     sortKey="customMetricPercentile"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Metric Score %', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1122,6 +1133,7 @@ export default function ScoutingTablePage() {
                     sortKey="customMetricScore"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Metric Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1136,6 +1148,7 @@ export default function ScoutingTablePage() {
                     sortKey="fmdatalabRoleScore"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Role Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1150,6 +1163,7 @@ export default function ScoutingTablePage() {
                     sortKey="finalScore"
                     currentSort={sortBy}
                     direction={sortDirection}
+                    onResizeStart={(e) => startResize('Final Score', e)}
                     onSort={(key) => {
                       if (sortBy === key) {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -1167,6 +1181,7 @@ export default function ScoutingTablePage() {
                       currentSort={columnSortBy[column] ? column : undefined}
                       direction={columnSortBy[column]}
                       onSort={toggleColumnSort}
+                      onResizeStart={(e) => startResize(column, e)}
                     />
                   ))}
                 </tr>
@@ -1207,18 +1222,29 @@ export default function ScoutingTablePage() {
                           />
                         </div>
                       ) : (
-                        <input
-                          type="text"
-                          value={columnFilters[column] || ''}
-                          onChange={(e) =>
-                            setColumnFilters((prev) => ({
-                              ...prev,
-                              [column]: e.target.value,
-                            }))
-                          }
-                          placeholder={`Search ${column}`}
-                          className="scout-input scout-filter-input"
-                        />
+                        <>
+                          <input
+                            type="text"
+                            list={`dl-${column}`}
+                            autoComplete="off"
+                            value={columnFilters[column] || ''}
+                            onChange={(e) =>
+                              setColumnFilters((prev) => ({
+                                ...prev,
+                                [column]: e.target.value,
+                              }))
+                            }
+                            placeholder={`Search ${column}`}
+                            className="scout-input scout-filter-input"
+                          />
+                          {columnSuggestions[column] && columnSuggestions[column].length > 0 && (
+                            <datalist id={`dl-${column}`}>
+                              {columnSuggestions[column].map((s) => (
+                                <option key={s} value={s} />
+                              ))}
+                            </datalist>
+                          )}
+                        </>
                       )}
                     </th>
                   ))}
