@@ -507,26 +507,67 @@ export default function RoleConfigurationPage() {
             </div>
 
             <div className="panel p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400 mb-4">Templates</h3>
-              <div className="grid gap-3">
-                {Object.entries(FORMULA_TEMPLATES).map(([name, template]) => (
-                  <button
-                    key={name}
-                    onClick={() => handleFormulaChange(template.expression)}
-                    title={template.description}
-                    className="group text-left rounded-2xl border border-slate-800/80 bg-slate-950/90 px-4 py-3 text-sm text-slate-200 transition hover:border-violet-500 hover:bg-slate-900"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="font-semibold">{name}</p>
-                      <span className="rounded-full bg-slate-800/90 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-slate-400">template</span>
-                    </div>
-                    <p className="mt-2 text-xs text-slate-500">{template.expression}</p>
-                    <p className="mt-3 text-xs leading-5 text-slate-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      {template.description}
-                    </p>
-                  </button>
-                ))}
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Templates de fórmulas</h3>
+                <span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-violet-300">
+                  {Object.keys(FORMULA_TEMPLATES).length} presets
+                </span>
               </div>
+              <p className="mb-4 text-xs leading-5 text-slate-500">
+                Clica num template para preencher a fórmula. Podes editá-la depois manualmente.
+              </p>
+              {(() => {
+                const grouped = Object.entries(FORMULA_TEMPLATES).reduce<Record<string, Array<[string, FormulaTemplate]>>>(
+                  (acc, entry) => {
+                    const cat = entry[1].category || 'Outros'
+                    acc[cat] = acc[cat] || []
+                    acc[cat].push(entry)
+                    return acc
+                  },
+                  {}
+                )
+                const order = ['Geral', 'Perfil', 'Tático', 'Valor', 'Outros']
+                const sortedCats = Object.keys(grouped).sort(
+                  (a, b) => (order.indexOf(a) === -1 ? 99 : order.indexOf(a)) - (order.indexOf(b) === -1 ? 99 : order.indexOf(b))
+                )
+                return (
+                  <div className="space-y-5">
+                    {sortedCats.map((cat) => (
+                      <div key={cat}>
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-violet-300/80">{cat}</p>
+                        <div className="grid gap-2">
+                          {grouped[cat].map(([name, template]) => {
+                            const isActive = formula.trim() === template.expression.trim()
+                            return (
+                              <button
+                                key={name}
+                                onClick={() => handleFormulaChange(template.expression)}
+                                title={template.description}
+                                className={`group text-left rounded-2xl border px-4 py-3 text-sm transition ${
+                                  isActive
+                                    ? 'border-violet-400 bg-violet-500/10 text-violet-100 shadow-[0_0_0_1px_rgba(167,139,250,0.25)]'
+                                    : 'border-slate-800/80 bg-slate-950/90 text-slate-200 hover:border-violet-500/70 hover:bg-slate-900'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="font-semibold">{name}</p>
+                                  {isActive && (
+                                    <span className="rounded-full bg-violet-500/30 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-violet-100">
+                                      ativo
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-1.5 break-all font-mono text-[11px] text-slate-500">{template.expression}</p>
+                                <p className="mt-2 text-xs leading-5 text-slate-400">{template.description}</p>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
             </div>
           </div>
         </div>
