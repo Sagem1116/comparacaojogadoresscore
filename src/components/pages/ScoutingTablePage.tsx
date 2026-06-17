@@ -1363,6 +1363,7 @@ interface TableHeaderCellProps {
   currentSort?: string
   direction?: 'asc' | 'desc'
   onSort?: (key: string) => void
+  onResizeStart?: (event: React.MouseEvent) => void
 }
 
 function TableHeaderCell({
@@ -1371,19 +1372,28 @@ function TableHeaderCell({
   currentSort,
   direction,
   onSort,
+  onResizeStart,
 }: TableHeaderCellProps) {
   const isSorted = sortKey && currentSort === sortKey
   return (
     <th
       onClick={() => sortKey && onSort?.(sortKey)}
-      className={`px-4 py-4 text-left font-semibold tracking-wide text-slate-200 uppercase text-[11px] ${sortKey ? 'cursor-pointer hover:bg-slate-700/70' : ''}`}
+      className={`relative px-4 py-4 text-left font-semibold tracking-wide text-slate-200 uppercase text-[11px] ${sortKey ? 'cursor-pointer hover:bg-slate-700/70' : ''}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 truncate">
         {label}
         {isSorted && (
           <span className="text-xs text-cyan-300">{direction === 'asc' ? '↑' : '↓'}</span>
         )}
       </div>
+      {onResizeStart && (
+        <span
+          onMouseDown={onResizeStart}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none bg-transparent hover:bg-cyan-400/40"
+          title="Drag to resize"
+        />
+      )}
     </th>
   )
 }
