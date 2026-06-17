@@ -9,44 +9,89 @@ import { validateFormula } from '../../utils/formula'
 interface FormulaTemplate {
   expression: string
   description: string
+  category?: string
 }
 
 const FORMULA_TEMPLATES: Record<string, FormulaTemplate> = {
-  Balanced: {
-    expression: '(CustomMetricScore * 0.6) + (RoleScore * 0.25) + (MinutesPlayed / 90) * 0.15',
-    description: 'A neutral profile that blends custom metrics, role score and playing time for a broad scouting view.',
+  'Equilibrado 70/30': {
+    category: 'Geral',
+    expression: '(CustomMetricScore * 0.7) + (RoleScore * 0.3)',
+    description: 'Padrão recomendado: 70% das tuas métricas customizadas e 30% do role score do FMDataLab. Bom ponto de partida para qualquer posição.',
   },
-  Offensive: {
-    expression: '(CustomMetricScore * 0.7) + (RoleScore * 0.15) + (MinutesPlayed / 90) * 0.15',
-    description: 'Rewards players with high custom scoring output and greater match involvement, ideal for creative or attacking roles.',
+  'Equilibrado 50/50': {
+    category: 'Geral',
+    expression: '(CustomMetricScore * 0.5) + (RoleScore * 0.5)',
+    description: 'Peso igual entre as métricas customizadas e o role score. Útil quando confias tanto na tua avaliação como na do FMDataLab.',
   },
-  Defensive: {
-    expression: '(RoleScore * 0.5) + (CustomMetricScore * 0.25) + ((100 - Age) * 0.2)',
-    description: 'Leans on role score strength while slightly favoring younger, more resilient defensive prospects.',
+  'Métricas Custom Puras': {
+    category: 'Geral',
+    expression: 'CustomMetricScore * 100',
+    description: 'Usa apenas as tuas métricas selecionadas, ignorando o role score. Ideal quando queres controlo total sobre a avaliação.',
   },
-  YouthFocus: {
-    expression: '(CustomMetricScore * 0.4) + (RoleScore * 0.2) + ((100 - Age) * 0.3) + (MinutesPlayed / 90) * 0.1',
-    description: 'Designed to highlight emerging young talent by rewarding age, involvement and baseline performance.',
+  'Role Score Puro': {
+    category: 'Geral',
+    expression: 'RoleScore',
+    description: 'Confia totalmente no role score do FMDataLab. Útil para comparar rapidamente sem configurar métricas.',
   },
-  ValueHunter: {
-    expression: '((CustomMetricScore + RoleScore) / 2) * (100 - (MarketValue / 1000000))',
-    description: 'Targets undervalued players by penalizing market value while keeping performance metrics central.',
+  'Talento Jovem': {
+    category: 'Perfil',
+    expression: '(CustomMetricScore * 0.45) + (RoleScore * 0.25) + ((30 - Age) * 1.0)',
+    description: 'Destaca jogadores com menos de 30 anos: cada ano abaixo dessa idade adiciona pontos. Excelente para identificar promessas.',
   },
-  Experience: {
-    expression: '(RoleScore * 0.4) + (CustomMetricScore * 0.3) + (MinutesPlayed / 90) * 0.3',
-    description: 'Favours dependable performers who play regularly, balancing role score with consistency and minutes.',
+  'Sub-23 Premium': {
+    category: 'Perfil',
+    expression: '(CustomMetricScore * 0.5) + (RoleScore * 0.3) + ((23 - Age) * 2)',
+    description: 'Foco agressivo em jovens até 23 anos. Penaliza jogadores mais velhos para fazer destacar as próximas estrelas.',
   },
-  Stability: {
-    expression: '(CustomMetricScore * 0.35) + (RoleScore * 0.35) + (Age * 0.3)',
-    description: 'Combines metric output and role fit with age-based maturity, useful for seasoned players.',
+  'Veterano Experiente': {
+    category: 'Perfil',
+    expression: '(CustomMetricScore * 0.4) + (RoleScore * 0.4) + (MinutesPlayed / 90 * 0.2)',
+    description: 'Premeia jogadores com performance consolidada e muitos minutos jogados. Ideal para contratações de impacto imediato.',
   },
-  Aggressive: {
-    expression: '(CustomMetricScore * 0.8) + (RoleScore * 0.1) + ((100 - Age) * 0.1)',
-    description: 'Prioritizes impact metrics and younger profiles, ideal for high-risk, high-reward scouting.',
+  'Titularidade Comprovada': {
+    category: 'Perfil',
+    expression: '((CustomMetricScore * 0.6) + (RoleScore * 0.4)) * (MinutesPlayed / 2000)',
+    description: 'Multiplica a performance pela proporção de minutos jogados (base 2000). Filtra naturalmente jogadores com pouca utilização.',
   },
-  Playmaker: {
-    expression: '(CustomMetricScore * 0.55) + (RoleScore * 0.25) + (MinutesPlayed / 90) * 0.2',
-    description: 'Focuses on creative contribution and game time, making it suited for midfield creators.',
+  'Caça-Pechinchas': {
+    category: 'Valor',
+    expression: '((CustomMetricScore * 0.6) + (RoleScore * 0.4)) / (1 + (MarketValue / 5000000))',
+    description: 'Divide o score pelo valor de mercado (escala 5M). Quanto mais barato e melhor o jogador, maior a pontuação final.',
+  },
+  'Valor por Milhão': {
+    category: 'Valor',
+    expression: '(CustomMetricScore * 0.7 + RoleScore * 0.3) / (1 + MarketValue / 1000000)',
+    description: 'Calcula performance por milhão investido. Excelente para clubes com orçamento limitado que procuram máximo retorno.',
+  },
+  'Investimento Seguro': {
+    category: 'Valor',
+    expression: '(CustomMetricScore * 0.5) + (RoleScore * 0.4) + (MinutesPlayed / 90 * 0.1)',
+    description: 'Combina performance, fit ao role e regularidade. Reduz o risco ao priorizar jogadores já testados em campo.',
+  },
+  'Performance Pura': {
+    category: 'Tático',
+    expression: '(CustomMetricScore * 0.85) + (RoleScore * 0.15)',
+    description: 'Foco quase total nas tuas métricas customizadas. Usa quando tens uma definição muito clara do perfil que procuras.',
+  },
+  'Criativo / Playmaker': {
+    category: 'Tático',
+    expression: '(CustomMetricScore * 0.6) + (RoleScore * 0.25) + (MinutesPlayed / 90 * 0.15)',
+    description: 'Equilibra criatividade (métricas) com fit no papel e minutos. Ideal para médios criadores e número 10.',
+  },
+  'Finalizador': {
+    category: 'Tático',
+    expression: '(CustomMetricScore * 0.75) + (RoleScore * 0.25)',
+    description: 'Peso elevado nas métricas customizadas, perfeito para perfis ofensivos onde golos e finalização dominam a avaliação.',
+  },
+  'Defensivo Sólido': {
+    category: 'Tático',
+    expression: '(CustomMetricScore * 0.4) + (RoleScore * 0.5) + (MinutesPlayed / 90 * 0.1)',
+    description: 'Dá maior peso ao role score (defesa exige consistência tática) e valoriza minutos jogados como sinal de confiança do treinador.',
+  },
+  'Híbrido com Idade': {
+    category: 'Geral',
+    expression: '(CustomMetricScore * 0.55) + (RoleScore * 0.3) + ((28 - Age) * 0.5)',
+    description: 'Combinação flexível que dá ligeiro bónus a jogadores abaixo dos 28 anos sem penalizar excessivamente os mais velhos.',
   },
 }
 
@@ -462,26 +507,67 @@ export default function RoleConfigurationPage() {
             </div>
 
             <div className="panel p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400 mb-4">Templates</h3>
-              <div className="grid gap-3">
-                {Object.entries(FORMULA_TEMPLATES).map(([name, template]) => (
-                  <button
-                    key={name}
-                    onClick={() => handleFormulaChange(template.expression)}
-                    title={template.description}
-                    className="group text-left rounded-2xl border border-slate-800/80 bg-slate-950/90 px-4 py-3 text-sm text-slate-200 transition hover:border-violet-500 hover:bg-slate-900"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="font-semibold">{name}</p>
-                      <span className="rounded-full bg-slate-800/90 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-slate-400">template</span>
-                    </div>
-                    <p className="mt-2 text-xs text-slate-500">{template.expression}</p>
-                    <p className="mt-3 text-xs leading-5 text-slate-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                      {template.description}
-                    </p>
-                  </button>
-                ))}
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Templates de fórmulas</h3>
+                <span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-violet-300">
+                  {Object.keys(FORMULA_TEMPLATES).length} presets
+                </span>
               </div>
+              <p className="mb-4 text-xs leading-5 text-slate-500">
+                Clica num template para preencher a fórmula. Podes editá-la depois manualmente.
+              </p>
+              {(() => {
+                const grouped = Object.entries(FORMULA_TEMPLATES).reduce<Record<string, Array<[string, FormulaTemplate]>>>(
+                  (acc, entry) => {
+                    const cat = entry[1].category || 'Outros'
+                    acc[cat] = acc[cat] || []
+                    acc[cat].push(entry)
+                    return acc
+                  },
+                  {}
+                )
+                const order = ['Geral', 'Perfil', 'Tático', 'Valor', 'Outros']
+                const sortedCats = Object.keys(grouped).sort(
+                  (a, b) => (order.indexOf(a) === -1 ? 99 : order.indexOf(a)) - (order.indexOf(b) === -1 ? 99 : order.indexOf(b))
+                )
+                return (
+                  <div className="space-y-5">
+                    {sortedCats.map((cat) => (
+                      <div key={cat}>
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-violet-300/80">{cat}</p>
+                        <div className="grid gap-2">
+                          {grouped[cat].map(([name, template]) => {
+                            const isActive = formula.trim() === template.expression.trim()
+                            return (
+                              <button
+                                key={name}
+                                onClick={() => handleFormulaChange(template.expression)}
+                                title={template.description}
+                                className={`group text-left rounded-2xl border px-4 py-3 text-sm transition ${
+                                  isActive
+                                    ? 'border-violet-400 bg-violet-500/10 text-violet-100 shadow-[0_0_0_1px_rgba(167,139,250,0.25)]'
+                                    : 'border-slate-800/80 bg-slate-950/90 text-slate-200 hover:border-violet-500/70 hover:bg-slate-900'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="font-semibold">{name}</p>
+                                  {isActive && (
+                                    <span className="rounded-full bg-violet-500/30 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-violet-100">
+                                      ativo
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-1.5 break-all font-mono text-[11px] text-slate-500">{template.expression}</p>
+                                <p className="mt-2 text-xs leading-5 text-slate-400">{template.description}</p>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
             </div>
           </div>
         </div>
