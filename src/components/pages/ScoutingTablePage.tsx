@@ -621,6 +621,7 @@ export default function ScoutingTablePage() {
             </div>
           </div>
         </div>
+        <AIScoutAssistant analyses={[]} players={players} role={selectedRole} />
       </div>
     )
   }
@@ -1218,7 +1219,7 @@ export default function ScoutingTablePage() {
         </div>
       </div>
     </div>
-    <AIScoutAssistant analyses={filteredAnalyses} role={selectedRole} />
+    <AIScoutAssistant analyses={filteredAnalyses} players={players} role={selectedRole} />
   </div>
   )
 }
