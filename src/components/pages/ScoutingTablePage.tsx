@@ -1127,7 +1127,13 @@ export default function ScoutingTablePage() {
                 {paginatedData.items.map((analysis, idx) => (
                   <tr
                     key={analysis.playerId}
-                    className={`transition-colors cursor-pointer hover:bg-slate-900/90 ${analysis.rank <= 3 ? 'border-l-4 border-amber-500 bg-slate-900/90' : analysis.rank <= 10 ? 'border-l-4 border-sky-500 bg-slate-950/95' : ''} ${idx % 2 === 0 ? 'bg-slate-950' : 'bg-slate-900'}`}
+                    className={`cursor-pointer ${
+                      analysis.rank <= 3
+                        ? 'border-l-[3px] border-amber-400'
+                        : analysis.rank <= 10
+                        ? 'border-l-[3px] border-cyan-400/70'
+                        : 'border-l-[3px] border-transparent'
+                    } ${idx % 2 === 1 ? 'row-zebra' : ''}`}
                     onClick={() => navigate(`/player/${analysis.playerId}`)}
                   >
                     <TableCell className="font-semibold text-cyan-200">{analysis.rank}</TableCell>
