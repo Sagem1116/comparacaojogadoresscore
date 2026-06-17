@@ -927,21 +927,21 @@ export default function ScoutingTablePage() {
         </div>
       </div>
 
-        <div className="grid gap-4 mb-6 sm:grid-cols-3">
-          <div className="scout-card">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Top performer</p>
-            <p className="mt-2 text-xl font-semibold text-white">{analysisSummary.highestPlayer?.playerName || 'No data'}</p>
-            <p className="mt-1 text-sm text-slate-400">Score: {analysisSummary.highestFinalScore.toFixed(1)}</p>
+        <div className="grid gap-3 mb-5 sm:grid-cols-3">
+          <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-transparent p-4">
+            <p className="text-[10px] uppercase tracking-[0.28em] text-amber-300/80">Top performer</p>
+            <p className="mt-1.5 text-lg font-semibold text-white truncate">{analysisSummary.highestPlayer?.playerName || 'No data'}</p>
+            <p className="mt-0.5 text-xs text-slate-400">Score: <span className="text-amber-300 font-semibold">{analysisSummary.highestFinalScore.toFixed(1)}</span></p>
           </div>
-          <div className="scout-card">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Configuration</p>
-            <p className="mt-2 text-xl font-semibold text-white">{configuration.metricProfile.roleName || 'Unconfigured'}</p>
-            <p className="mt-1 text-sm text-slate-400 line-clamp-2">{configuration.finalScoreFormula}</p>
+          <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-transparent p-4">
+            <p className="text-[10px] uppercase tracking-[0.28em] text-violet-300/80">Configuration</p>
+            <p className="mt-1.5 text-lg font-semibold text-white truncate">{configuration.metricProfile.roleName || 'Unconfigured'}</p>
+            <p className="mt-0.5 font-mono text-[11px] text-slate-500 line-clamp-1">{configuration.finalScoreFormula}</p>
           </div>
-          <div className="scout-card">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Column readiness</p>
-            <p className="mt-2 text-xl font-semibold text-white">{selectedColumns.length} shown</p>
-            <p className="mt-1 text-sm text-slate-400">{availableColumns.length} available</p>
+          <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-transparent p-4">
+            <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-300/80">Columns</p>
+            <p className="mt-1.5 text-lg font-semibold text-white">{selectedColumns.length}<span className="text-sm text-slate-500"> / {availableColumns.length}</span></p>
+            <p className="mt-0.5 text-xs text-slate-400">columns visible</p>
           </div>
         </div>
 
