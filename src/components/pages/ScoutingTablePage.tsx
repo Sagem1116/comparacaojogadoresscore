@@ -5,6 +5,7 @@ import { ChevronLeft, Copy, Check, Download, Settings, Search } from 'lucide-rea
 import { PlayerAnalysis, Role, Player } from '../../types/index'
 import { useFilteredAnalyses, usePagination } from '../../hooks/useAnalysis'
 import { calculateAllPlayersAnalysis, exportAnalysisToCSV } from '../../services/analysisService'
+import AIScoutAssistant from '../AIScoutAssistant'
 
 function parseNumericValue(value: any): number | null {
   if (typeof value === 'number') return value
@@ -1216,6 +1217,7 @@ export default function ScoutingTablePage() {
         </div>
       </div>
     </div>
+    <AIScoutAssistant analyses={filteredAnalyses} role={selectedRole} />
   </div>
   )
 }
