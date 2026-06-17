@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, type ReactNode } from 'react'
+import { useState, useMemo, useEffect, useRef, type ReactNode, type MouseEvent as ReactMouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDataStore } from '../../stores/dataStore'
 import { ChevronLeft, Copy, Check, Download, Settings, Search } from 'lucide-react'
