@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type ReactNode } from 'react'
+import { useState, useMemo, useEffect, useRef, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDataStore } from '../../stores/dataStore'
 import { ChevronLeft, Copy, Check, Download, Settings, Search } from 'lucide-react'
@@ -102,6 +102,9 @@ export default function ScoutingTablePage() {
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({})
   const [columnFilterRanges, setColumnFilterRanges] = useState<Record<string, { min: string; max: string }>>({})
   const [columnSortBy, setColumnSortBy] = useState<Record<string, 'asc' | 'desc'>>({})
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({})
+  const hasInitializedDefaultsRef = useRef(false)
+  const hadSavedStateRef = useRef(false)
   const [salaryMin, setSalaryMin] = useState('')
   const [salaryMax, setSalaryMax] = useState('')
   const [transferMin, setTransferMin] = useState('')
@@ -116,6 +119,7 @@ export default function ScoutingTablePage() {
       if (!raw) return
 
       const parsed = JSON.parse(raw)
+      hadSavedStateRef.current = true
       if (Array.isArray(parsed.selectedColumns)) {
         setSelectedColumns(parsed.selectedColumns)
       }
@@ -126,6 +130,10 @@ export default function ScoutingTablePage() {
 
       if (parsed.columnFilterRanges && typeof parsed.columnFilterRanges === 'object') {
         setColumnFilterRanges(parsed.columnFilterRanges)
+      }
+
+      if (parsed.columnWidths && typeof parsed.columnWidths === 'object') {
+        setColumnWidths(parsed.columnWidths)
       }
 
       if (typeof parsed.salaryMin === 'string') {
@@ -152,6 +160,7 @@ export default function ScoutingTablePage() {
       selectedColumns,
       columnFilters,
       columnFilterRanges,
+      columnWidths,
       salaryMin,
       salaryMax,
       transferMin,
@@ -159,7 +168,29 @@ export default function ScoutingTablePage() {
     }
 
     window.localStorage.setItem(STORAGE_KEY_SCOUTING_STATE, JSON.stringify(stateToSave))
-  }, [selectedColumns, columnFilters, columnFilterRanges, salaryMin, salaryMax, transferMin, transferMax])
+  }, [selectedColumns, columnFilters, columnFilterRanges, columnWidths, salaryMin, salaryMax, transferMin, transferMax])
+
+  // Default visible columns when nothing is saved yet:
+  // include wage + transfer value Stats columns by default
+  useEffect(() => {
+    if (hasInitializedDefaultsRef.current) return
+    if (players.length === 0) return
+    if (hadSavedStateRef.current) {
+      hasInitializedDefaultsRef.current = true
+      return
+    }
+    const defaults = [
+      ...transferValueColumns.map((c) => `Stats: ${c}`),
+      ...salaryColumns.map((c) => `Stats: ${c}`),
+    ]
+    if (defaults.length > 0) {
+      setSelectedColumns((prev) => {
+        if (prev.length > 0) return prev
+        return Array.from(new Set(defaults))
+      })
+    }
+    hasInitializedDefaultsRef.current = true
+  }, [players, salaryColumns, transferValueColumns])
 
   const filteredAvailableColumns = useMemo(() => {
     const lowerSearch = columnSearch.toLowerCase().trim()
