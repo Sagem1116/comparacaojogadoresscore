@@ -500,7 +500,7 @@ export default function ScoutingTablePage() {
     return 180
   }
 
-  const startResize = (column: string, event: React.MouseEvent) => {
+  const startResize = (column: string, event: ReactMouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
     const startX = event.clientX
@@ -1363,7 +1363,7 @@ interface TableHeaderCellProps {
   currentSort?: string
   direction?: 'asc' | 'desc'
   onSort?: (key: string) => void
-  onResizeStart?: (event: React.MouseEvent) => void
+  onResizeStart?: (event: ReactMouseEvent) => void
 }
 
 function TableHeaderCell({
